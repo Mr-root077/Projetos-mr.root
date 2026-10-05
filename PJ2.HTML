@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haiti — Caminhos da Liberdade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   HAITI — CAMINHOS DA LIBERDADE
+   Paleta: azul profundo da bandeira, vermelho, dourado solar,
+   verde das montanhas, papel creme. Tipografia: Fraunces (display)
+   + Manrope (interface).
+   ========================================================= */
+
+:root{
+  --blue-deep:  #0B2C6B;
+  --blue:       #1740A6;
+  --red:        #C81D3F;
+  --gold:       #E3B23C;
+  --green:      #1F6E4A;
+  --paper:      #F6F1E4;
+  --paper-dark: #EDE4CC;
+  --ink:        #1C1710;
+  --ink-soft:   #4A4233;
+  --sea:        #0E4C7C;
+
+  --shadow-tile: 4px 4px 0 rgba(28,23,16,0.18);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+
+  --font-display: "Fraunces", serif;
+  --font-body: "Manrope", sans-serif;
+}
+
+*{ box-sizing: border-box; }
+
+html,body{
+  margin:0; padding:0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overflow-x:hidden;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+button{ font-family: inherit; cursor:pointer; }
+button:focus-visible, a:focus-visible{
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* ---------------- SCREENS ---------------- */
+.screen{
+  display:none !important;
+  min-height:100vh;
+  width:100%;
+}
+.screen.active{ display:block !important; }
+.screen--home.active{ display:flex !important; }
+.screen--game.active{ display:flex !important; flex-direction:column; }
+
+/* ---------------- HOME ---------------- */
+.screen--home{
+  position:relative;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(227,178,60,0.18), transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(200,29,63,0.16), transparent 50%),
+    linear-gradient(180deg, var(--blue-deep) 0%, var(--blue) 55%, var(--red) 100%);
+  align-items:center;
+  justify-content:center;
+  padding: 32px 20px;
+}
+
+.home-bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; }
+
+.home-content{
+  position:relative;
+  z-index:2;
+  max-width: 640px;
+  text-align:center;
+  color: var(--paper);
+}
+
+.eyebrow-flag{
+  font-size: 2.6rem;
+  margin: 0 0 8px;
+}
+
+.home-title{
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  line-height: 1.02;
+  margin: 0 0 18px;
+  letter-spacing: -0.01em;
+}
+.home-title span{
+  display:block;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.42em;
+  color: var(--gold);
+  margin-top: 10px;
+}
+
+.home-tagline{
+  font-size: 1.1rem;
+  line-height:1.5;
+  color: rgba(246,241,228,0.9);
+  max-width: 460px;
+  margin: 0 auto 34px;
+}
+
+.home-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 14px;
+  justify-content:center;
+}
+
+/* ---------------- BUTTONS ---------------- */
+.btn{
+  border:none;
+  border-radius: var(--radius-sm);
+  padding: 14px 26px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:active{ transform: translateY(2px); }
+
+.btn--primary{
+  background: var(--gold);
+  color: var(--blue-deep);
+  box-shadow: 0 4px 0 #a87c17;
+}
+.btn--primary:hover{ transform: translateY(-2px); box-shadow: 0 6px 0 #a87c17; }
+.btn--primary:active{ box-shadow: 0 2px 0 #a87c17; transform: translateY(2px); }
+
+.btn--ghost{
+  background: rgba(246,241,228,0.08);
+  color: var(--paper);
+  border: 1.5px solid rgba(246,241,228,0.55);
+}
+.btn--ghost:hover{ background: rgba(246,241,228,0.18); }
+
+.btn--dice{
+  background: var(--red);
+  color: var(--paper);
+  display:flex; align-items:center; gap:10px;
+  font-size: 1.15rem;
+  box-shadow: 0 4px 0 #8c1329;
+  padding: 16px 30px;
+}
+.btn--dice:hover{ transform: translateY(-2px); }
+.btn--dice:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+
+.dice-face{ font-size: 1.6rem; display:inline-block; }
+.dice-face.rolling{ animation: dice-spin 0.6s ease; }
+@keyframes dice-spin{
+  0%{ transform: rotate(0deg) scale(1); }
+  50%{ transform: rotate(200deg) scale(1.25); }
+  100%{ transform: rotate(360deg) scale(1); }
+}
+
+.btn-back{
+  background:none;
+  border:none;
+  color: var(--blue-deep);
+  font-weight:700;
+  font-size:0.95rem;
+  padding: 8px 4px;
+  margin-bottom: 8px;
+}
+.btn-back--hud{ color: var(--paper); margin:0; }
+
+/* ---------------- PANELS (Como jogar / Sobre / Ranking) ---------------- */
+.panel{
+  max-width: 720px;
+  margin: 40px auto;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-tile);
+  padding: 28px 30px 34px;
+}
+.panel--wide{ max-width: 900px; }
+
+.panel-title{
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--blue-deep);
+  margin: 4px 0 20px;
+}
+
+.how-list{
+  padding-left: 22px;
+  line-height: 1.7;
+  font-size: 1.02rem;
+}
+.how-list li{ margin-bottom: 12px; }
+.how-list strong{ color: var(--red); }
+
+/* Learn tabs */
+.learn-tabs{
+  display:flex; flex-wrap:wrap; gap:8px;
+  margin-bottom: 20px;
+}
+.learn-tab{
+  border: 1.5px solid var(--blue-deep);
+  background: transparent;
+  color: var(--blue-deep);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.learn-tab.active{
+  background: var(--blue-deep);
+  color: var(--paper);
+}
+.learn-content{
+  background: var(--paper-dark);
+  border-radius: var(--radius-sm);
+  padding: 22px 24px;
+  line-height: 1.65;
+  font-size: 1.02rem;
+  min-height: 140px;
+}
+.learn-content h3{
+  font-family: var(--font-display);
+  color: var(--red);
+  margin-top:0;
+}
+
+/* Ranking */
+.ranking-list{
+  list-style: none;
+  padding:0; margin:0;
+  display:flex; flex-direction:column; gap:10px;
+}
+.ranking-list li{
+  display:flex; justify-content:space-between; align-items:center;
+  background: var(--paper-dark);
+  border-radius: var(--radius-sm);
+  padding: 12px 18px;
+  font-weight:700;
+}
+.ranking-empty{ color: var(--ink-soft); font-style: italic; }
+
+/* ---------------- GAME SCREEN ---------------- */
+.screen--game{
+  min-height:100vh;
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper-dark) 100%);
+  flex-direction:column;
+}
+
+.game-hud{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 10px;
+  align-items:center;
+  padding: 12px 18px;
+  background: var(--blue-deep);
+  color: var(--paper);
+}
+.hud-item{
+  background: rgba(246,241,228,0.12);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight:700;
+  font-size: 0.92rem;
+}
+.hud-score{ background: var(--gold); color: var(--blue-deep); }
+.game-hud .btn-back--hud{ margin-left:auto; }
+
+.board-wrap{
+  position: relative;
+  flex: 1;
+  padding: 20px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+#board-path-svg{ position:absolute; inset:0; width:100%; height:100%; }
+#board-tiles{ position:relative; width:100%; height:100%; min-height: 520px; }
+
+.tile{
+  position:absolute;
+  width: 78px; height: 78px;
+  transform: translate(-50%,-50%);
+  border-radius: 14px;
+  border: 2.5px solid var(--ink);
+  background: var(--paper);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-align:center;
+  box-shadow: var(--shadow-tile);
+  padding: 4px;
+  line-height:1.15;
+}
+.tile-icon{ font-size: 1.3rem; }
+.tile.tile--city{ background: var(--gold); }
+.tile.tile--facil{ background: #CFE8D6; }
+.tile.tile--medio{ background: #F5DFA0; }
+.tile.tile--dificil{ background: #F0BFC6; }
+.tile.tile--supremo{ background: #C9D6F2; }
+.tile.tile--carta{ background: #E3D2F2; }
+.tile.tile--start{ background: var(--green); color: var(--paper); }
+.tile.tile--fim{ background: var(--red); color: var(--paper); }
+.tile.tile--current{ box-shadow: 0 0 0 4px var(--red), var(--shadow-tile); }
+
+.player-piece{
+  position:absolute;
+  width: 34px; height:34px;
+  transform: translate(-50%, -140%);
+  font-size: 1.7rem;
+  transition: left 0.5s ease, top 0.5s ease;
+  filter: drop-shadow(2px 3px 1px rgba(0,0,0,0.35));
+  z-index: 5;
+}
+
+.game-controls{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 10px;
+  padding: 18px 20px 30px;
+}
+.turn-msg{
+  text-align:center;
+  color: var(--ink-soft);
+  font-weight:600;
+  max-width: 480px;
+}
+
+/* ---------------- MODALS ---------------- */
+.modal-overlay{
+  display:none;
+  position:fixed; inset:0;
+  background: rgba(11,44,107,0.55);
+  align-items:center; justify-content:center;
+  z-index: 100;
+  padding: 20px;
+}
+.modal-overlay.active{ display:flex; }
+
+.modal{
+  background: var(--paper);
+  border-radius: var(--radius-md);
+  border: 2.5px solid var(--ink);
+  max-width: 520px;
+  width:100%;
+  padding: 26px 26px 30px;
+  box-shadow: 8px 8px 0 rgba(11,44,107,0.35);
+  animation: modal-pop 0.28s ease;
+}
+@keyframes modal-pop{
+  from{ opacity:0; transform: scale(0.92) translateY(10px); }
+  to{ opacity:1; transform: scale(1) translateY(0); }
+}
+
+.modal-tag{
+  display:inline-block;
+  background: var(--red);
+  color: var(--paper);
+  font-weight:800;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+.modal-question{
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--blue-deep);
+  margin: 0 0 18px;
+  line-height:1.35;
+}
+.modal-options{
+  display:flex; flex-direction:column; gap:10px;
+  margin-bottom: 16px;
+}
+.opt-btn{
+  text-align:left;
+  background: var(--paper-dark);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.98rem;
+  font-weight:600;
+  color: var(--ink);
+}
+.opt-btn:hover:not(:disabled){ border-color: var(--blue); }
+.opt-btn.correct{ background: #CFE8D6; border-color: var(--green); }
+.opt-btn.incorrect{ background: #F0BFC6; border-color: var(--red); }
+.opt-btn:disabled{ cursor:default; }
+
+.modal-feedback{
+  font-weight:700;
+  line-height:1.5;
+  min-height: 20px;
+}
+.modal-feedback .fb-title{ font-size:1.05rem; display:block; margin-bottom:4px; }
+.modal-feedback.ok .fb-title{ color: var(--green); }
+.modal-feedback.bad .fb-title{ color: var(--red); }
+.modal-feedback .fb-rewards{ color: var(--blue-deep); font-weight:800; margin-top:6px; display:block; }
+
+.modal-continue{ margin-top: 16px; width:100%; }
+
+/* Carta especial */
+.modal--carta{ text-align:center; max-width: 420px; }
+.carta-icon{ font-size: 3rem; margin-bottom: 8px; }
+.carta-titulo{ font-family: var(--font-display); color: var(--red); font-size:1.5rem; margin: 0 0 10px; }
+.carta-desc{ line-height:1.55; margin-bottom: 18px; }
+
+/* Fim de partida */
+.modal--fim{ max-width: 480px; text-align:center; }
+.fim-titulo{ font-family: var(--font-display); font-size: 1.8rem; color: var(--blue-deep); margin-top:0; }
+.fim-stats{
+  text-align:left;
+  display:flex; flex-direction:column; gap:8px;
+  background: var(--paper-dark);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin: 16px 0 22px;
+  font-weight:600;
+}
+.fim-buttons{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+/* ---------------- POINT POPUP ---------------- */
+.point-popup{
+  position:fixed;
+  font-family: var(--font-display);
+  font-weight:800;
+  font-size: 1.4rem;
+  color: var(--green);
+  z-index: 200;
+  pointer-events:none;
+  animation: point-float 1.1s ease forwards;
+}
+@keyframes point-float{
+  0%{ opacity:0; transform: translateY(0); }
+  15%{ opacity:1; }
+  100%{ opacity:0; transform: translateY(-50px); }
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 640px){
+  .home-buttons{ flex-direction:column; align-items:stretch; }
+  .btn{ width:100%; }
+  .tile{ width: 58px; height:58px; font-size:0.58rem; }
+  .tile-icon{ font-size: 1rem; }
+  .player-piece{ width:26px; height:26px; font-size:1.3rem; }
+  .board-wrap{ padding: 12px; }
+  #board-tiles{ min-height: 440px; }
+  .game-hud{ font-size: 0.85rem; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ===================== TELA INICIAL ===================== -->
+<section id="screen-home" class="screen screen--home active">
+  <div class="home-bg" aria-hidden="true">
+    <svg class="home-map" viewBox="0 0 600 420" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40,220 Q80,150 150,140 Q210,130 250,160 Q300,140 360,150 Q420,140 470,180 Q520,200 540,240 Q510,270 450,260 Q400,280 350,270 Q300,300 240,280 Q180,300 130,270 Q80,270 40,220 Z" fill="var(--sea)" opacity="0"/>
+    </svg>
+  </div>
+  <div class="home-content">
+    <p class="eyebrow-flag">🇭🇹</p>
+    <h1 class="home-title">Haiti<br><span>Caminhos da Liberdade</span></h1>
+    <p class="home-tagline">Conheça o Haiti, enfrente desafios e conquiste o caminho da liberdade!</p>
+    <div class="home-buttons">
+      <button class="btn btn--primary" id="btn-jogar">🎮 Jogar</button>
+      <button class="btn btn--ghost" id="btn-como-jogar">📖 Como jogar</button>
+      <button class="btn btn--ghost" id="btn-sobre">🇭🇹 Sobre o Haiti</button>
+      <button class="btn btn--ghost" id="btn-ranking">🏆 Ranking</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMO JOGAR ===================== -->
+<section id="screen-como" class="screen">
+  <div class="panel">
+    <button class="btn-back" data-back>← Voltar</button>
+    <h2 class="panel-title">Como jogar</h2>
+    <ol class="how-list">
+      <li><strong>Lance o dado</strong> e mova sua peça pelo tabuleiro do Haiti.</li>
+      <li>Ao cair em uma <strong>casa de desafio</strong>, responda uma pergunta sobre história, geografia, cultura, culinária, monumentos ou natureza do país.</li>
+      <li>Respostas corretas rendem <strong>pontos, dinheiro, construções e influência</strong>. Acertos seguidos rendem bônus de sequência.</li>
+      <li>Casas especiais entregam <strong>cartas</strong>: Desafio Bônus, Conhecimento, História do Haiti, Segunda Chance e Grande Desafio.</li>
+      <li>Chegue à última casa do tabuleiro para encerrar a partida e ver seu resultado final.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== SOBRE O HAITI (MODO APRENDER) ===================== -->
+<section id="screen-sobre" class="screen">
+  <div class="panel panel--wide">
+    <button class="btn-back" data-back>← Voltar</button>
+    <h2 class="panel-title">🇭🇹 Conheça o Haiti</h2>
+    <div class="learn-tabs" id="learn-tabs"></div>
+    <div class="learn-content" id="learn-content"></div>
+  </div>
+</section>
+
+<!-- ===================== RANKING ===================== -->
+<section id="screen-ranking" class="screen">
+  <div class="panel">
+    <button class="btn-back" data-back>← Voltar</button>
+    <h2 class="panel-title">🏆 Ranking</h2>
+    <ol class="ranking-list" id="ranking-list"></ol>
+    <p class="ranking-empty" id="ranking-empty">Ainda não há partidas registradas. Jogue para entrar no ranking!</p>
+  </div>
+</section>
+
+<!-- ===================== JOGO / TABULEIRO ===================== -->
+<section id="screen-game" class="screen">
+  <header class="game-hud">
+    <div class="hud-item hud-score">⭐ <span id="hud-points">0</span></div>
+    <div class="hud-item">🔥 <span id="hud-streak">0</span></div>
+    <div class="hud-item">💰 <span id="hud-money">0</span></div>
+    <div class="hud-item">🏗️ <span id="hud-build">0</span></div>
+    <div class="hud-item">🚢 <span id="hud-trade">0</span></div>
+    <div class="hud-item">⭐ <span id="hud-influence">0</span></div>
+    <button class="btn-back btn-back--hud" data-back>✕ Sair</button>
+  </header>
+
+  <div class="board-wrap">
+    <svg id="board-path-svg" viewBox="0 0 1000 620"></svg>
+    <div id="board-tiles"></div>
+  </div>
+
+  <footer class="game-controls">
+    <button class="btn btn--dice" id="btn-dado">
+      <span class="dice-face" id="dice-face">🎲</span>
+      <span>Lançar dado</span>
+    </button>
+    <p class="turn-msg" id="turn-msg">Lance o dado para começar sua jornada pelo Haiti!</p>
+  </footer>
+</section>
+
+<!-- ===================== MODAL: DESAFIO ===================== -->
+<div class="modal-overlay" id="modal-desafio">
+  <div class="modal modal--desafio">
+    <div class="modal-tag" id="desafio-tag">🇭🇹 DESAFIO</div>
+    <h3 class="modal-question" id="desafio-pergunta">Pergunta</h3>
+    <div class="modal-options" id="desafio-opcoes"></div>
+    <div class="modal-feedback" id="desafio-feedback"></div>
+    <button class="btn btn--primary modal-continue" id="desafio-continuar" style="display:none;">Continuar</button>
+  </div>
+</div>
+
+<!-- ===================== MODAL: CARTA ESPECIAL ===================== -->
+<div class="modal-overlay" id="modal-carta">
+  <div class="modal modal--carta">
+    <div class="carta-flip" id="carta-flip">
+      <div class="carta-icon" id="carta-icon">🎴</div>
+      <h3 class="carta-titulo" id="carta-titulo">Carta especial</h3>
+      <p class="carta-desc" id="carta-desc"></p>
+      <button class="btn btn--primary" id="carta-continuar">Continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: FIM DE PARTIDA ===================== -->
+<div class="modal-overlay" id="modal-fim">
+  <div class="modal modal--fim">
+    <h3 class="fim-titulo">🏆 Fim da partida!</h3>
+    <div class="fim-stats" id="fim-stats"></div>
+    <div class="fim-buttons">
+      <button class="btn btn--primary" id="fim-novo">Jogar novamente</button>
+      <button class="btn btn--ghost" id="fim-menu">Menu principal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Banco de perguntas — Haiti: Caminhos da Liberdade
+// difficulty: facil (100), medio (300), dificil (500), supremo (1000)
+
+const CATEGORY_META = {
+  historia:   { label: "História",   icon: "🏛️" },
+  geografia:  { label: "Geografia",  icon: "🌎" },
+  cultura:    { label: "Cultura",    icon: "🎭" },
+  culinaria:  { label: "Culinária",  icon: "🍲" },
+  monumentos: { label: "Monumentos", icon: "🏛️" },
+  natureza:   { label: "Natureza",   icon: "🌴" }
+};
+
+const DIFFICULTY_META = {
+  facil:   { label: "Fácil",   points: 100, color: "var(--green)" },
+  medio:   { label: "Médio",   points: 300, color: "var(--gold)" },
+  dificil: { label: "Difícil", points: 500, color: "var(--red)" },
+  supremo: { label: "Desafio Supremo", points: 1000, color: "var(--blue-deep)" }
+};
+
+const QUESTIONS = [
+  // ===================== HISTÓRIA =====================
+  { category:"historia", difficulty:"facil", question:"Em que ano o Haiti declarou sua independência?",
+    options:["1789","1804","1822","1888"], correct:1,
+    explanation:"O Haiti declarou independência em 1º de janeiro de 1804, tornando-se a primeira nação livre da América Latina e a primeira república negra do mundo." },
+  { category:"historia", difficulty:"facil", question:"Qual revolução resultou na independência do Haiti?",
+    options:["Revolução Francesa","Revolução Haitiana","Revolução Cubana","Revolução Mexicana"], correct:1,
+    explanation:"A Revolução Haitiana (1791–1804) foi um levante de pessoas escravizadas contra o domínio colonial francês, terminando na independência do país." },
+  { category:"historia", difficulty:"facil", question:"O Haiti era colônia de qual país europeu antes da independência?",
+    options:["Espanha","Portugal","França","Inglaterra"], correct:2,
+    explanation:"A parte ocidental da ilha de Hispaniola era a colônia francesa de Saint-Domingue antes de se tornar o Haiti independente." },
+  { category:"historia", difficulty:"medio", question:"Quem liderou o exército que declarou a independência do Haiti em 1804?",
+    options:["Toussaint Louverture","Jean-Jacques Dessalines","Napoleão Bonaparte","Simón Bolívar"], correct:1,
+    explanation:"Jean-Jacques Dessalines liderou as forças haitianas à vitória final e proclamou a independência em 1804." },
+  { category:"historia", difficulty:"medio", question:"Qual líder é considerado o grande precursor da Revolução Haitiana, morto preso na França antes da independência ser proclamada?",
+    options:["Henri Christophe","Alexandre Pétion","Toussaint Louverture","Jean-Baptiste Belley"], correct:2,
+    explanation:"Toussaint Louverture organizou e liderou a luta pela liberdade, mas foi capturado pelas tropas francesas e morreu preso na França em 1803, antes da independência." },
+  { category:"historia", difficulty:"medio", question:"Como era chamado o território do Haiti durante o período colonial francês?",
+    options:["Nova Espanha","Saint-Domingue","Porto Rico","Guadalupe"], correct:1,
+    explanation:"A colônia francesa era chamada de Saint-Domingue e foi, por décadas, uma das mais lucrativas colônias do mundo devido ao trabalho escravizado." },
+  { category:"historia", difficulty:"dificil", question:"Em qual cidade foi proclamada oficialmente a independência do Haiti?",
+    options:["Port-au-Prince","Cap-Haïtien","Gonaïves","Jacmel"], correct:2,
+    explanation:"A independência foi proclamada em Gonaïves em 1º de janeiro de 1804, por isso a cidade é chamada de \"Cidade da Independência\"." },
+  { category:"historia", difficulty:"dificil", question:"Quem se tornou o primeiro governante do Haiti independente, assumindo o título de imperador logo após 1804?",
+    options:["Henri Christophe","Jean-Jacques Dessalines","Alexandre Pétion","Toussaint Louverture"], correct:1,
+    explanation:"Jean-Jacques Dessalines se proclamou imperador com o nome de Jacques I, governando o Haiti recém-independente até 1806." },
+  { category:"historia", difficulty:"supremo", question:"Em que ano começou a grande revolta de pessoas escravizadas que deu origem à Revolução Haitiana?",
+    options:["1789","1791","1798","1801"], correct:1,
+    explanation:"A revolta começou em agosto de 1791, no norte da colônia, e se espalhou até culminar na independência em 1804." },
+
+  // ===================== GEOGRAFIA =====================
+  { category:"geografia", difficulty:"facil", question:"Qual é a capital do Haiti?",
+    options:["Cap-Haïtien","Port-au-Prince","Jacmel","Les Cayes"], correct:1,
+    explanation:"Port-au-Prince é a capital e a maior cidade do Haiti." },
+  { category:"geografia", difficulty:"facil", question:"Em qual região do mundo fica o Haiti?",
+    options:["Caribe","Norte da África","Sudeste Asiático","Europa Oriental"], correct:0,
+    explanation:"O Haiti é um país insular localizado no Mar do Caribe." },
+  { category:"geografia", difficulty:"facil", question:"Em qual ilha o Haiti está localizado?",
+    options:["Cuba","Jamaica","Hispaniola","Porto Rico"], correct:2,
+    explanation:"O Haiti ocupa a parte ocidental da ilha de Hispaniola." },
+  { category:"geografia", difficulty:"medio", question:"Com qual país o Haiti divide a ilha de Hispaniola?",
+    options:["Cuba","República Dominicana","Jamaica","Bahamas"], correct:1,
+    explanation:"O Haiti ocupa o terço oeste da ilha, enquanto a República Dominicana ocupa os dois terços orientais." },
+  { category:"geografia", difficulty:"medio", question:"Quais águas banham o território do Haiti?",
+    options:["Oceano Pacífico e Mar Vermelho","Mar do Caribe e Oceano Atlântico","Mar Mediterrâneo","Oceano Índico"], correct:1,
+    explanation:"O Haiti tem litoral tanto para o Mar do Caribe quanto para o Oceano Atlântico." },
+  { category:"geografia", difficulty:"medio", question:"Qual é a maior cidade do norte do Haiti, próxima à Citadelle Laferrière?",
+    options:["Cap-Haïtien","Gonaïves","Pétion-Ville","Léogâne"], correct:0,
+    explanation:"Cap-Haïtien é a segunda maior cidade do país e um importante centro histórico do norte haitiano." },
+  { category:"geografia", difficulty:"dificil", question:"Qual é o ponto mais alto do Haiti?",
+    options:["Pic Macaya","Pic la Selle","Morne la Visite","Pic Cabaio"], correct:1,
+    explanation:"O Pic la Selle, no Massif de la Selle, é o ponto mais alto do Haiti, com cerca de 2.680 metros." },
+  { category:"geografia", difficulty:"dificil", question:"Qual cadeia de montanhas atravessa a região sul do Haiti?",
+    options:["Massif de la Selle","Cordilheira dos Andes","Serra do Mar","Montes Apalaches"], correct:0,
+    explanation:"O Massif de la Selle é a principal cadeia montanhosa do sul do país, abrigando seu ponto culminante." },
+  { category:"geografia", difficulty:"supremo", question:"Qual é a moeda oficial do Haiti?",
+    options:["Peso","Dólar haitiano","Gourde","Real"], correct:2,
+    explanation:"A moeda oficial do Haiti é o gourde haitiano (HTG)." },
+
+  // ===================== CULTURA =====================
+  { category:"cultura", difficulty:"facil", question:"Quais são as línguas oficiais do Haiti?",
+    options:["Espanhol e inglês","Crioulo haitiano e francês","Português e francês","Inglês e crioulo jamaicano"], correct:1,
+    explanation:"O crioulo haitiano (kreyòl) e o francês são as duas línguas oficiais do país." },
+  { category:"cultura", difficulty:"facil", question:"Qual gênero musical, com raízes em bandas de baile, é um dos mais populares do Haiti?",
+    options:["Reggaeton","Kompa (konpa)","Fado","Tango"], correct:1,
+    explanation:"O kompa é um estilo musical de dança criado no Haiti em meados do século XX e muito difundido pelo Caribe." },
+  { category:"cultura", difficulty:"facil", question:"Quais são as duas cores principais da bandeira do Haiti?",
+    options:["Verde e amarelo","Azul e vermelho","Preto e branco","Laranja e roxo"], correct:1,
+    explanation:"A bandeira do Haiti é dividida em azul e vermelho, cores herdadas da bandeira francesa após a retirada da faixa branca em 1803." },
+  { category:"cultura", difficulty:"medio", question:"Qual festival popular acontece antes da Quaresma, com desfiles, música e fantasias coloridas?",
+    options:["Kanaval (Carnaval)","Dia dos Mortos","Festa Junina","Oktoberfest"], correct:0,
+    explanation:"O Kanaval haitiano é uma das maiores celebrações culturais do país, com destaque para o carnaval de Jacmel." },
+  { category:"cultura", difficulty:"medio", question:"Qual religião, praticada por muitos haitianos, combina tradições de origem africana com elementos do catolicismo?",
+    options:["Vodu haitiano","Budismo","Hinduísmo","Xintoísmo"], correct:0,
+    explanation:"O vodu (vodou) haitiano é uma religião formada pela mistura de tradições espirituais africanas trazidas por escravizados com o catolicismo colonial." },
+  { category:"cultura", difficulty:"medio", question:"Qual gênero musical de rua, tocado com tambores, apitos e trombetas de bambu, é tradicional durante a Quaresma?",
+    options:["Rara","Samba","Merengue","Salsa"], correct:0,
+    explanation:"O Rara é uma tradição musical e de procissão de rua muito viva no período que antecede a Páscoa." },
+  { category:"cultura", difficulty:"dificil", question:"O Haiti foi a primeira república do mundo governada por que grupo, após a independência de 1804?",
+    options:["Colonos europeus","Ex-escravizados e negros livres","Monarcas indígenas","Imigrantes asiáticos"], correct:1,
+    explanation:"O Haiti se tornou a primeira república negra do mundo, fundada por pessoas que haviam sido escravizadas e lutaram por sua liberdade." },
+  { category:"cultura", difficulty:"dificil", question:"Qual movimento de pintura haitiana, com cenas coloridas do cotidiano e cores vivas, ganhou reconhecimento internacional a partir da década de 1940?",
+    options:["Arte naïf haitiana","Cubismo","Impressionismo","Barroco"], correct:0,
+    explanation:"A pintura naïf (ou ingênua) haitiana ganhou fama mundial após a fundação do Centre d'Art em Port-au-Prince, em 1944." },
+  { category:"cultura", difficulty:"supremo", question:"Qual cidade costeira do sul é considerada a capital cultural e artística do Haiti, famosa por seu carnaval e artesanato de papel machê?",
+    options:["Jacmel","Les Cayes","Jérémie","Léogâne"], correct:0,
+    explanation:"Jacmel é reconhecida como um polo artístico do Haiti, com um carnaval famoso por suas máscaras de papel machê." },
+
+  // ===================== CULINÁRIA =====================
+  { category:"culinaria", difficulty:"facil", question:"Qual é o nome do prato tradicional de carne de porco frita, muito popular no Haiti?",
+    options:["Griot","Feijoada","Churrasco","Tamale"], correct:0,
+    explanation:"O griot é um prato clássico haitiano feito com pedaços de porco marinados e fritos, geralmente servido com banana-da-terra." },
+  { category:"culinaria", difficulty:"facil", question:"Qual é o acompanhamento picante feito de repolho e vegetais fermentados, servido com quase todas as refeições haitianas?",
+    options:["Pikliz","Chimichurri","Molho shoyu","Guacamole"], correct:0,
+    explanation:"O pikliz é uma conserva picante de repolho, cenoura e pimenta, presença constante à mesa haitiana." },
+  { category:"culinaria", difficulty:"medio", question:"Qual sopa é tradicionalmente servida em 1º de janeiro para celebrar o Dia da Independência do Haiti?",
+    options:["Soup Joumou","Canja de galinha","Sopa de cebola","Caldo verde"], correct:0,
+    explanation:"A Soup Joumou, feita com abóbora, é servida no dia da independência como símbolo de liberdade." },
+  { category:"culinaria", difficulty:"medio", question:"Qual prato à base de arroz com feijão é uma das refeições mais comuns no dia a dia haitiano?",
+    options:["Diri ak pwa","Paella","Risoto","Bibimbap"], correct:0,
+    explanation:"Diri ak pwa (arroz com feijão) é um prato cotidiano essencial na culinária haitiana." },
+  { category:"culinaria", difficulty:"medio", question:"Qual fruta tropical é a base de muitos sucos frescos populares no Haiti?",
+    options:["Manga","Kiwi","Framboesa","Pera"], correct:0,
+    explanation:"A manga é abundante no Haiti e usada em sucos, sobremesas e como fruta consumida ao natural." },
+  { category:"culinaria", difficulty:"dificil", question:"Como se chama o bolinho frito feito de malanga (inhame-taro) ralada, popular como petisco de rua no Haiti?",
+    options:["Akra","Empanada","Croquete","Samosa"], correct:0,
+    explanation:"O akra é um petisco frito feito principalmente de malanga ralada, muito vendido nas ruas haitianas." },
+  { category:"culinaria", difficulty:"dificil", question:"Por que a Soup Joumou tem um significado histórico tão especial para os haitianos?",
+    options:["Porque era proibida aos escravizados no período colonial e virou símbolo de liberdade após 1804","Porque foi criada por um chef francês famoso","Porque só pode ser feita no verão","Porque é a sopa mais cara do mundo"], correct:0,
+    explanation:"Durante a colonização, a sopa era reservada aos colonizadores franceses; comê-la após a independência tornou-se um ato simbólico de liberdade, repetido até hoje." },
+  { category:"culinaria", difficulty:"supremo", question:"Qual é o nome da aguardente tradicional haitiana feita de cana-de-açúcar, produzida de forma artesanal?",
+    options:["Clairin","Saquê","Grappa","Pisco"], correct:0,
+    explanation:"O clairin é uma aguardente de cana-de-açúcar produzida artesanalmente no Haiti, com longa tradição rural." },
+
+  // ===================== MONUMENTOS =====================
+  { category:"monumentos", difficulty:"facil", question:"Qual é a famosa fortaleza construída no topo de uma montanha no norte do Haiti?",
+    options:["Citadelle Laferrière","Muralha da China","Machu Picchu","Forte de Copacabana"], correct:0,
+    explanation:"A Citadelle Laferrière é uma imponente fortaleza erguida no topo de uma montanha, um dos maiores símbolos do Haiti." },
+  { category:"monumentos", difficulty:"facil", question:"Quem mandou construir a Citadelle Laferrière?",
+    options:["Henri Christophe","Napoleão Bonaparte","Toussaint Louverture","Cristóvão Colombo"], correct:0,
+    explanation:"O rei Henri Christophe ordenou a construção da Citadelle no início do século XIX." },
+  { category:"monumentos", difficulty:"medio", question:"Qual palácio real em ruínas, com jardins e arquitetura inspirada em Versalhes, fica perto da Citadelle Laferrière?",
+    options:["Palácio Sans-Souci","Palácio de Buckingham","Palácio de Versalhes","Palácio da Alvorada"], correct:0,
+    explanation:"O Palácio Sans-Souci foi a residência real de Henri Christophe e hoje é um sítio histórico em ruínas." },
+  { category:"monumentos", difficulty:"medio", question:"Qual era o principal objetivo por trás da construção da Citadelle Laferrière?",
+    options:["Defender o Haiti de uma possível invasão francesa","Servir de porto comercial","Ser um templo religioso","Abrigar um museu de arte"], correct:0,
+    explanation:"Após a independência, temia-se uma tentativa francesa de reconquista, e a fortaleza foi construída como defesa estratégica." },
+  { category:"monumentos", difficulty:"dificil", question:"Perto de qual cidade ficam a Citadelle Laferrière e o Palácio Sans-Souci?",
+    options:["Milot, perto de Cap-Haïtien","Jacmel","Les Cayes","Port-au-Prince"], correct:0,
+    explanation:"Ambos os monumentos ficam na comuna de Milot, no norte do país, próximos a Cap-Haïtien." },
+  { category:"monumentos", difficulty:"dificil", question:"Junto com a Citadelle e o Sans-Souci, qual conjunto de monumentos foi reconhecido pela UNESCO como Patrimônio Mundial?",
+    options:["Parque Histórico Nacional — Citadelle, Sans Souci e Ramiers","Ruínas de Pompeia","Templos de Angkor","Pirâmides de Gizé"], correct:0,
+    explanation:"O Parque Histórico Nacional, que inclui a Citadelle, o Sans-Souci e as fortificações de Ramiers, é Patrimônio Mundial da UNESCO desde 1982." },
+  { category:"monumentos", difficulty:"supremo", question:"Em que período a Citadelle Laferrière foi construída?",
+    options:["Início do século XIX, após a independência","Durante a colonização espanhola, século XVI","No século XX, após a Segunda Guerra","Na época pré-colombiana"], correct:0,
+    explanation:"A construção começou por volta de 1805-1806, logo após a independência, e levou anos para ser concluída." },
+  { category:"monumentos", difficulty:"supremo", question:"Qual praça histórica no centro de Port-au-Prince é cercada por monumentos e ficava próxima ao Palácio Nacional?",
+    options:["Champ de Mars","Praça Vermelha","Praça de São Pedro","Times Square"], correct:0,
+    explanation:"O Champ de Mars é uma das principais praças históricas da capital haitiana, cercada de monumentos e edifícios públicos." },
+
+  // ===================== NATUREZA =====================
+  { category:"natureza", difficulty:"facil", question:"Qual é a península de praias privadas no norte do Haiti, muito visitada por turistas?",
+    options:["Labadee","Cancún","Ipanema","Copacabana"], correct:0,
+    explanation:"Labadee é uma península de praias no norte do Haiti, conhecida por suas paisagens e recepção de navios de cruzeiro." },
+  { category:"natureza", difficulty:"facil", question:"O Haiti é conhecido por praias com que tipo de águas?",
+    options:["Águas cristalinas do Caribe","Águas geladas do Ártico","Águas de um mar interior salgado","Águas de um grande rio"], correct:0,
+    explanation:"O litoral haitiano tem praias de águas claras e quentes, típicas do Mar do Caribe." },
+  { category:"natureza", difficulty:"medio", question:"Qual cidade costeira do sul do Haiti é famosa tanto por suas praias quanto por sua cena artística?",
+    options:["Jacmel","Cap-Haïtien","Gonaïves","Pétion-Ville"], correct:0,
+    explanation:"Jacmel combina belas praias com uma forte tradição de arte e artesanato local." },
+  { category:"natureza", difficulty:"medio", question:"Qual é um dos principais desafios ambientais enfrentados pelo Haiti relacionado à cobertura vegetal?",
+    options:["Desmatamento","Excesso de gelo","Vulcões ativos","Excesso de florestas intocadas"], correct:0,
+    explanation:"O desmatamento histórico é um dos maiores desafios ambientais do Haiti, afetando solo e clima local." },
+  { category:"natureza", difficulty:"dificil", question:"Qual é a maior ilha pertencente ao Haiti, localizada no noroeste do país?",
+    options:["Ilha da Tortuga (Île de la Tortue)","Ilha de Páscoa","Ilha de Man","Ilha Fernando de Noronha"], correct:0,
+    explanation:"A Île de la Tortue, ao norte da costa haitiana, tem grande importância histórica, tendo sido refúgio de piratas no período colonial." },
+  { category:"natureza", difficulty:"dificil", question:"Qual tipo de clima predomina no Haiti?",
+    options:["Tropical","Polar","Desértico frio","Mediterrâneo"], correct:0,
+    explanation:"O Haiti tem clima tropical, com temperaturas quentes o ano todo e estações chuvosas bem marcadas." },
+  { category:"natureza", difficulty:"supremo", question:"Qual parque nacional protege uma das últimas áreas de floresta de pinheiros de altitude do Haiti?",
+    options:["Parc National La Visite","Parque do Ibirapuera","Parque Yellowstone","Parque Nacional de Serengeti"], correct:0,
+    explanation:"O Parc National La Visite, no Massif de la Selle, abriga uma das últimas florestas de pinheiro do país." },
+  { category:"natureza", difficulty:"supremo", question:"Qual é o nome do maior lago do Haiti, um lago de água salgada?",
+    options:["Étang Saumâtre (Lac Azuéi)","Lago Titicaca","Lago Vitória","Lago Baikal"], correct:0,
+    explanation:"O Étang Saumâtre, também chamado Lac Azuéi, é o maior corpo d'água do Haiti, um lago salgado próximo à fronteira com a República Dominicana." }
+];
+
+
+// Conteúdo do Modo Aprender — "Conheça o Haiti"
+
+const LEARN_CONTENT = {
+  historia: {
+    icon: "🏛️", label: "História",
+    text: `O Haiti nasceu da Revolução Haitiana (1791–1804), o único levante de pessoas escravizadas
+    da história que resultou na fundação de um Estado independente. Liderada em diferentes momentos
+    por Toussaint Louverture e, depois, por Jean-Jacques Dessalines, a revolução derrubou o domínio
+    colonial francês e, em 1º de janeiro de 1804, proclamou a independência em Gonaïves. O Haiti se
+    tornou a primeira república negra do mundo e a segunda nação independente das Américas.`
+  },
+  geografia: {
+    icon: "🌎", label: "Geografia",
+    text: `Situado no Mar do Caribe, o Haiti ocupa o terço ocidental da ilha de Hispaniola, que divide
+    com a República Dominicana. Seu território é predominantemente montanhoso — por isso é conhecido
+    como "país das montanhas" — e tem seu ponto mais alto no Pic la Selle. A capital, Port-au-Prince,
+    fica em uma baía no litoral sul-ocidental do país.`
+  },
+  cultura: {
+    icon: "🎭", label: "Cultura",
+    text: `A cultura haitiana é rica e vibrante, expressa no crioulo haitiano e no francês, nos ritmos
+    do kompa e do rara, no carnaval de Jacmel e nas cores da pintura naïf haitiana, reconhecida
+    mundialmente. O vodu haitiano, que mistura tradições africanas com o catolicismo, é parte
+    importante da vida espiritual de muitas famílias.`
+  },
+  culinaria: {
+    icon: "🍲", label: "Culinária",
+    text: `A mesa haitiana tem no griot (porco frito), no diri ak pwa (arroz com feijão) e no picante
+    pikliz alguns de seus pratos mais queridos. Em 1º de janeiro, a Soup Joumou é servida em
+    celebração à independência — um prato que, durante a colonização, era negado às pessoas
+    escravizadas, e hoje simboliza liberdade.`
+  },
+  monumentos: {
+    icon: "🏛️", label: "Monumentos",
+    text: `No topo de uma montanha próxima a Cap-Haïtien ergue-se a Citadelle Laferrière, mandada
+    construir pelo rei Henri Christophe para defender o Haiti recém-independente. Ao lado, as ruínas
+    do Palácio Sans-Souci lembram a grandiosidade da corte real haitiana. Juntos, formam o Parque
+    Histórico Nacional, Patrimônio Mundial da UNESCO.`
+  },
+  natureza: {
+    icon: "🌴", label: "Natureza",
+    text: `Entre praias de águas cristalinas como as de Labadee e Jacmel e as serras do Massif de la
+    Selle, o Haiti guarda paisagens muito diversas. O desmatamento é um dos grandes desafios
+    ambientais do país, o que torna ainda mais preciosas áreas protegidas como o Parc National
+    La Visite, refúgio de uma das últimas florestas de pinheiros de altitude do Haiti.`
+  }
+};
+
+
+// =========================================================
+// HAITI — CAMINHOS DA LIBERDADE — lógica do jogo
+// =========================================================
+
+/* ---------- NAVEGAÇÃO ENTRE TELAS ---------- */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+document.querySelectorAll("[data-back]").forEach(btn=>{
+  btn.addEventListener("click", ()=> showScreen("screen-home"));
+});
+document.getElementById("btn-como-jogar").addEventListener("click", ()=> showScreen("screen-como"));
+document.getElementById("btn-ranking").addEventListener("click", ()=>{ renderRanking(); showScreen("screen-ranking"); });
+document.getElementById("btn-sobre").addEventListener("click", ()=>{ initLearn(); showScreen("screen-sobre"); });
+document.getElementById("btn-jogar").addEventListener("click", startNewGame);
+
+/* ---------- MODO APRENDER ---------- */
+function initLearn(){
+  const tabsEl = document.getElementById("learn-tabs");
+  const contentEl = document.getElementById("learn-content");
+  if(tabsEl.dataset.built) { return; }
+  tabsEl.dataset.built = "1";
+  const keys = Object.keys(LEARN_CONTENT);
+  keys.forEach((key, i)=>{
+    const tab = document.createElement("button");
+    tab.className = "learn-tab" + (i===0 ? " active" : "");
+    tab.textContent = `${LEARN_CONTENT[key].icon} ${LEARN_CONTENT[key].label}`;
+    tab.addEventListener("click", ()=>{
+      tabsEl.querySelectorAll(".learn-tab").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      renderLearn(key);
+    });
+    tabsEl.appendChild(tab);
+  });
+  renderLearn(keys[0]);
+}
+function renderLearn(key){
+  const c = LEARN_CONTENT[key];
+  document.getElementById("learn-content").innerHTML =
+    `<h3>${c.icon} ${c.label}</h3><p>${c.text}</p>`;
+}
+
+/* ---------- RANKING (armazenado no navegador) ---------- */
+function getRanking(){
+  try{ return JSON.parse(localStorage.getItem("haiti_ranking") || "[]"); }
+  catch(e){ return []; }
+}
+function saveScoreToRanking(points){
+  const list = getRanking();
+  list.push({ points, date: new Date().toLocaleDateString("pt-BR") });
+  list.sort((a,b)=> b.points - a.points);
+  localStorage.setItem("haiti_ranking", JSON.stringify(list.slice(0,10)));
+}
+function renderRanking(){
+  const list = getRanking();
+  const ol = document.getElementById("ranking-list");
+  const empty = document.getElementById("ranking-empty");
+  ol.innerHTML = "";
+  if(list.length === 0){ empty.style.display = "block"; return; }
+  empty.style.display = "none";
+  const medals = ["🥇","🥈","🥉"];
+  list.forEach((entry, i)=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${medals[i] || (i+1)+"º"} — ${entry.date}</span><span>⭐ ${entry.points}</span>`;
+    ol.appendChild(li);
+  });
+}
+
+/* ---------- DEFINIÇÃO DO TABULEIRO ---------- */
+const CITY_STOPS = [
+  { name:"Port-au-Prince", icon:"🏙️" },
+  { name:"Pétion-Ville", icon:"🏘️" },
+  { name:"Jacmel", icon:"🎨" },
+  { name:"Les Cayes", icon:"⛵" },
+  { name:"Gonaïves", icon:"🕊️" },
+  { name:"Cap-Haïtien", icon:"🏰" },
+  { name:"Labadee", icon:"🏖️" },
+  { name:"Citadelle Laferrière", icon:"👑" }
+];
+
+// sequência de 28 casas
+const TILE_PLAN = [
+  { type:"start", city:0 },
+  { type:"desafio", difficulty:"facil" },
+  { type:"desafio", difficulty:"medio" },
+  { type:"carta" },
+  { type:"city", city:1 },
+  { type:"desafio", difficulty:"facil" },
+  { type:"desafio", difficulty:"dificil" },
+  { type:"carta" },
+  { type:"city", city:2 },
+  { type:"desafio", difficulty:"medio" },
+  { type:"desafio", difficulty:"facil" },
+  { type:"desafio", difficulty:"supremo" },
+  { type:"city", city:3 },
+  { type:"carta" },
+  { type:"desafio", difficulty:"medio" },
+  { type:"desafio", difficulty:"dificil" },
+  { type:"city", city:4 },
+  { type:"desafio", difficulty:"facil" },
+  { type:"carta" },
+  { type:"desafio", difficulty:"medio" },
+  { type:"city", city:5 },
+  { type:"desafio", difficulty:"dificil" },
+  { type:"desafio", difficulty:"facil" },
+  { type:"carta" },
+  { type:"city", city:6 },
+  { type:"desafio", difficulty:"medio" },
+  { type:"desafio", difficulty:"supremo" },
+  { type:"fim", city:7 }
+];
+
+const CARD_TYPES = [
+  { id:"bonus", icon:"🎯", title:"Desafio Bônus", desc:"Este desafio vale o dobro de pontos! Responda com atenção." },
+  { id:"conhecimento", icon:"🧠", title:"Conhecimento", desc:"Uma pergunta mais difícil está por vir, mas a recompensa também é maior." },
+  { id:"historia-haiti", icon:"🇭🇹", title:"História do Haiti", desc:"" },
+  { id:"segunda-chance", icon:"🔄", title:"Segunda Chance", desc:"Se errar o próximo desafio, você poderá tentar responder novamente." },
+  { id:"grande-desafio", icon:"⭐", title:"Grande Desafio", desc:"Uma pergunta difícil o aguarda, valendo muitos pontos." }
+];
+
+/* ---------- ESTADO DO JOGO ---------- */
+let state = null;
+
+function startNewGame(){
+  state = {
+    position: 0,
+    points: 0,
+    money: 0,
+    build: 0,
+    trade: 0,
+    influence: 0,
+    streak: 0,
+    bestStreak: 0,
+    correct: 0,
+    wrong: 0,
+    pointsMultiplier: 1,
+    secondChance: false,
+    rolling: false,
+    finished: false
+  };
+  buildBoard();
+  updateHud();
+  document.getElementById("turn-msg").textContent = "Lance o dado para começar sua jornada pelo Haiti!";
+  document.getElementById("btn-dado").disabled = false;
+  showScreen("screen-game");
+}
+
+/* ---------- POSICIONAMENTO DO TABULEIRO ---------- */
+function tileCoords(index){
+  const perRow = 7;
+  const row = Math.floor(index / perRow);
+  let col = index % perRow;
+  if(row % 2 === 1) col = (perRow - 1) - col;
+  const x = 8 + col * (84 / (perRow - 1));
+  const y = 12 + row * 26;
+  return { x, y };
+}
+
+function buildBoard(){
+  const tilesEl = document.getElementById("board-tiles");
+  const svg = document.getElementById("board-path-svg");
+  tilesEl.innerHTML = "";
+  svg.innerHTML = "";
+
+  // linha do caminho
+  let pathPoints = "";
+  TILE_PLAN.forEach((t, i)=>{
+    const { x, y } = tileCoords(i);
+    pathPoints += `${x/100*1000},${y/100*620} `;
+  });
+  const polyline = document.createElementNS("http://www.w3.org/2000/svg","polyline");
+  polyline.setAttribute("points", pathPoints.trim());
+  polyline.setAttribute("fill","none");
+  polyline.setAttribute("stroke","#0B2C6B");
+  polyline.setAttribute("stroke-width","6");
+  polyline.setAttribute("stroke-dasharray","2 18");
+  polyline.setAttribute("stroke-linecap","round");
+  polyline.setAttribute("opacity","0.35");
+  svg.appendChild(polyline);
+
+  TILE_PLAN.forEach((t, i)=>{
+    const { x, y } = tileCoords(i);
+    const div = document.createElement("div");
+    div.className = "tile";
+    div.id = "tile-" + i;
+    div.style.left = x + "%";
+    div.style.top = y + "%";
+
+    if(t.type === "start"){
+      div.classList.add("tile--start");
+      div.innerHTML = `<span class="tile-icon">🚩</span><span>Início</span>`;
+    } else if(t.type === "fim"){
+      div.classList.add("tile--fim");
+      div.innerHTML = `<span class="tile-icon">🏆</span><span>${CITY_STOPS[t.city].name}</span>`;
+    } else if(t.type === "city"){
+      div.classList.add("tile--city");
+      div.innerHTML = `<span class="tile-icon">${CITY_STOPS[t.city].icon}</span><span>${CITY_STOPS[t.city].name}</span>`;
+    } else if(t.type === "carta"){
+      div.classList.add("tile--carta");
+      div.innerHTML = `<span class="tile-icon">🎴</span><span>Carta</span>`;
+    } else if(t.type === "desafio"){
+      div.classList.add("tile--" + t.difficulty);
+      div.innerHTML = `<span class="tile-icon">❓</span><span>${DIFFICULTY_META[t.difficulty].label}</span>`;
+    }
+    tilesEl.appendChild(div);
+  });
+
+  const piece = document.createElement("div");
+  piece.className = "player-piece";
+  piece.id = "player-piece";
+  piece.textContent = "🧍";
+  tilesEl.appendChild(piece);
+  placePiece(0);
+}
+
+function placePiece(index){
+  const { x, y } = tileCoords(index);
+  const piece = document.getElementById("player-piece");
+  piece.style.left = x + "%";
+  piece.style.top = y + "%";
+  document.querySelectorAll(".tile").forEach(t=>t.classList.remove("tile--current"));
+  const tile = document.getElementById("tile-" + index);
+  if(tile) tile.classList.add("tile--current");
+}
+
+/* ---------- HUD ---------- */
+function updateHud(){
+  document.getElementById("hud-points").textContent = state.points;
+  document.getElementById("hud-streak").textContent = state.streak;
+  document.getElementById("hud-money").textContent = state.money;
+  document.getElementById("hud-build").textContent = state.build;
+  document.getElementById("hud-trade").textContent = state.trade;
+  document.getElementById("hud-influence").textContent = state.influence;
+}
+
+function popPoints(text, x, y, color){
+  const el = document.createElement("div");
+  el.className = "point-popup";
+  el.textContent = text;
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  if(color) el.style.color = color;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 1150);
+}
+
+/* ---------- DADO E MOVIMENTO ---------- */
+document.getElementById("btn-dado").addEventListener("click", rollDice);
+
+function rollDice(){
+  if(!state || state.rolling || state.finished) return;
+  state.rolling = true;
+  document.getElementById("btn-dado").disabled = true;
+  const diceFace = document.getElementById("dice-face");
+  diceFace.classList.add("rolling");
+  const value = 1 + Math.floor(Math.random() * 6);
+  const faces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
+
+  let ticks = 0;
+  const spin = setInterval(()=>{
+    diceFace.textContent = faces[Math.floor(Math.random()*6)];
+    ticks++;
+    if(ticks > 8){
+      clearInterval(spin);
+      diceFace.textContent = faces[value-1];
+      diceFace.classList.remove("rolling");
+      document.getElementById("turn-msg").textContent = `Você tirou ${value}! Avançando...`;
+      movePlayer(value);
+    }
+  }, 70);
+}
+
+function movePlayer(steps){
+  let remaining = steps;
+  const step = ()=>{
+    if(remaining <= 0){
+      state.rolling = false;
+      onLand(state.position);
+      return;
+    }
+    remaining--;
+    state.position = Math.min(state.position + 1, TILE_PLAN.length - 1);
+    placePiece(state.position);
+    if(state.position === TILE_PLAN.length - 1){
+      state.rolling = false;
+      setTimeout(()=> onLand(state.position), 400);
+      return;
+    }
+    setTimeout(step, 320);
+  };
+  setTimeout(step, 200);
+}
+
+/* ---------- AÇÃO AO CAIR EM UMA CASA ---------- */
+function onLand(index){
+  const tile = TILE_PLAN[index];
+  updateHud();
+
+  if(tile.type === "fim"){
+    endGame();
+    return;
+  }
+  if(tile.type === "city"){
+    document.getElementById("turn-msg").textContent =
+      `Você chegou a ${CITY_STOPS[tile.city].name}! Continue jogando.`;
+    document.getElementById("btn-dado").disabled = false;
+    return;
+  }
+  if(tile.type === "start"){
+    document.getElementById("btn-dado").disabled = false;
+    return;
+  }
+  if(tile.type === "carta"){
+    openCardModal();
+    return;
+  }
+  if(tile.type === "desafio"){
+    openChallenge(tile.difficulty);
+    return;
+  }
+}
+
+/* ---------- CARTAS ESPECIAIS ---------- */
+function openCardModal(){
+  const card = CARD_TYPES[Math.floor(Math.random() * CARD_TYPES.length)];
+  document.getElementById("carta-icon").textContent = card.icon;
+  document.getElementById("carta-titulo").textContent = card.title;
+
+  let desc = card.desc;
+  let pendingDifficulty = null;
+
+  if(card.id === "bonus"){
+    state.pointsMultiplier = 2;
+    pendingDifficulty = "medio";
+  } else if(card.id === "conhecimento"){
+    pendingDifficulty = "dificil";
+    desc = "Uma pergunta mais difícil está por vir, mas a recompensa também é maior.";
+  } else if(card.id === "historia-haiti"){
+    const facts = [
+      "Você sabia? O Haiti foi a primeira nação da América Latina a se tornar independente, em 1804.",
+      "Você sabia? A bandeira do Haiti nasceu quando a faixa branca da bandeira francesa foi retirada, em 1803.",
+      "Você sabia? A Citadelle Laferrière é uma das maiores fortalezas já construídas nas Américas.",
+      "Você sabia? O crioulo haitiano é falado por praticamente toda a população do país."
+    ];
+    desc = facts[Math.floor(Math.random()*facts.length)];
+    pendingDifficulty = "facil";
+  } else if(card.id === "segunda-chance"){
+    state.secondChance = true;
+    pendingDifficulty = "medio";
+  } else if(card.id === "grande-desafio"){
+    pendingDifficulty = "supremo";
+  }
+
+  document.getElementById("carta-desc").textContent = desc;
+  document.getElementById("modal-carta").classList.add("active");
+
+  document.getElementById("carta-continuar").onclick = ()=>{
+    document.getElementById("modal-carta").classList.remove("active");
+    openChallenge(pendingDifficulty);
+  };
+}
+
+/* ---------- DESAFIOS (PERGUNTAS) ---------- */
+let currentQuestion = null;
+let awaitingSecondTry = false;
+
+function openChallenge(difficulty){
+  const pool = QUESTIONS.filter(q => q.difficulty === difficulty);
+  currentQuestion = pool[Math.floor(Math.random() * pool.length)];
+  awaitingSecondTry = false;
+  renderChallenge();
+  document.getElementById("modal-desafio").classList.add("active");
+}
+
+function renderChallenge(){
+  const meta = CATEGORY_META[currentQuestion.category];
+  const diff = DIFFICULTY_META[currentQuestion.difficulty];
+  document.getElementById("desafio-tag").textContent = `${meta.icon} ${meta.label} · ${diff.label}`;
+  document.getElementById("desafio-pergunta").textContent = currentQuestion.question;
+
+  const optsEl = document.getElementById("desafio-opcoes");
+  optsEl.innerHTML = "";
+  const feedback = document.getElementById("desafio-feedback");
+  feedback.className = "modal-feedback";
+  feedback.innerHTML = "";
+  document.getElementById("desafio-continuar").style.display = "none";
+
+  currentQuestion.options.forEach((opt, i)=>{
+    const btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", ()=> answerChallenge(i, btn));
+    optsEl.appendChild(btn);
+  });
+}
+
+function answerChallenge(choiceIndex, btnEl){
+  const optsEl = document.getElementById("desafio-opcoes");
+  const buttons = Array.from(optsEl.children);
+  const diff = DIFFICULTY_META[currentQuestion.difficulty];
+  const feedback = document.getElementById("desafio-feedback");
+  const isCorrect = choiceIndex === currentQuestion.correct;
+
+  buttons.forEach(b => b.disabled = true);
+
+  if(isCorrect){
+    buttons[choiceIndex].classList.add("correct");
+    const basePoints = diff.points * state.pointsMultiplier;
+    state.points += basePoints;
+    state.correct++;
+    state.streak++;
+    state.bestStreak = Math.max(state.bestStreak, state.streak);
+
+    let streakBonus = 0;
+    if(state.streak > 0 && state.streak % 3 === 0){
+      streakBonus = 200;
+      state.points += streakBonus;
+    }
+
+    const moneyGain = Math.round(diff.points * 0.4);
+    const influenceGain = Math.max(5, Math.round(diff.points / 30));
+    state.money += moneyGain;
+    state.influence += influenceGain;
+    if(currentQuestion.difficulty === "dificil" || currentQuestion.difficulty === "supremo"){
+      state.build += 1;
+    }
+    if(currentQuestion.difficulty === "medio" || currentQuestion.difficulty === "supremo"){
+      state.trade += 1;
+    }
+
+    feedback.className = "modal-feedback ok";
+    feedback.innerHTML =
+      `<span class="fb-title">✅ Resposta correta!</span>${currentQuestion.explanation}
+       <span class="fb-rewards">+${basePoints} pontos ${streakBonus? " · +"+streakBonus+" bônus de sequência" : ""} · +$${moneyGain} · +${influenceGain} influência</span>`;
+
+    const rect = btnEl.getBoundingClientRect();
+    popPoints("+" + basePoints, rect.left, rect.top, "#1F6E4A");
+
+  } else if(state.secondChance && !awaitingSecondTry){
+    awaitingSecondTry = true;
+    state.secondChance = false;
+    buttons[choiceIndex].classList.add("incorrect");
+    feedback.className = "modal-feedback bad";
+    feedback.innerHTML = `<span class="fb-title">❌ Resposta incorreta</span>Sua carta Segunda Chance foi usada — tente novamente!`;
+    setTimeout(()=>{
+      buttons.forEach(b=>{ b.disabled = false; b.classList.remove("incorrect"); });
+      feedback.innerHTML = `<span class="fb-title" style="color:var(--blue-deep)">🔄 Segunda chance!</span>Escolha novamente.`;
+    }, 1400);
+    return;
+
+  } else {
+    buttons[choiceIndex].classList.add("incorrect");
+    buttons[currentQuestion.correct].classList.add("correct");
+    state.wrong++;
+    state.streak = 0;
+    feedback.className = "modal-feedback bad";
+    feedback.innerHTML =
+      `<span class="fb-title">❌ Resposta incorreta</span>Resposta certa: <strong>${currentQuestion.options[currentQuestion.correct]}</strong>. ${currentQuestion.explanation}`;
+  }
+
+  state.pointsMultiplier = 1;
+  updateHud();
+  document.getElementById("desafio-continuar").style.display = "block";
+  document.getElementById("desafio-continuar").onclick = ()=>{
+    document.getElementById("modal-desafio").classList.remove("active");
+    document.getElementById("btn-dado").disabled = false;
+    document.getElementById("turn-msg").textContent = "Lance o dado para continuar sua jornada!";
+  };
+}
+
+/* ---------- FIM DE PARTIDA ---------- */
+function endGame(){
+  state.finished = true;
+  saveScoreToRanking(state.points);
+  const statsEl = document.getElementById("fim-stats");
+  statsEl.innerHTML = `
+    <div>⭐ Pontuação final: ${state.points}</div>
+    <div>✅ Perguntas acertadas: ${state.correct}</div>
+    <div>❌ Perguntas erradas: ${state.wrong}</div>
+    <div>🔥 Maior sequência de acertos: ${state.bestStreak}</div>
+    <div>🏗️ Construções: ${state.build}</div>
+    <div>💰 Dinheiro: $${state.money}</div>
+    <div>🚢 Comércio: ${state.trade}</div>
+    <div>⭐ Influência: ${state.influence}</div>
+  `;
+  document.getElementById("modal-fim").classList.add("active");
+}
+document.getElementById("fim-novo").addEventListener("click", ()=>{
+  document.getElementById("modal-fim").classList.remove("active");
+  startNewGame();
+});
+document.getElementById("fim-menu").addEventListener("click", ()=>{
+  document.getElementById("modal-fim").classList.remove("active");
+  showScreen("screen-home");
+});
+
+</script>
+</body>
+</html>

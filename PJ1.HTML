@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz do Haiti · Turma 1ºA JBM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bleu: #0a2e73;
+    --bleu-2: #123a8f;
+    --rouge: #c81f3c;
+    --rouge-2: #e0294a;
+    --sable: #f7ecd8;
+    --or: #e3a233;
+    --or-2: #f4c05a;
+    --verde: #1f7a5c;
+    --noite: #0c1730;
+    --branco: #fffaf0;
+    --sombra: rgba(12, 23, 48, 0.35);
+    --radius: 22px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Nunito', sans-serif;
+    background:
+      radial-gradient(circle at 15% -10%, #1c4fa8 0%, transparent 45%),
+      radial-gradient(circle at 110% 110%, #8f1a2e 0%, transparent 40%),
+      linear-gradient(160deg, var(--bleu) 0%, var(--noite) 100%);
+    min-height:100vh;
+    color: var(--branco);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* raios de sol decorativos */
+  .sunrays{
+    position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.16;
+    background:
+      repeating-conic-gradient(from 0deg at 85% 8%, #f4c05a 0deg 4deg, transparent 4deg 16deg);
+    mix-blend-mode: overlay;
+  }
+
+  .stage{
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding: 28px 18px 60px;
+  }
+
+  .screen{ width:100%; max-width:620px; display:none; animation: rise .5s ease both; }
+  .screen.active{ display:flex; flex-direction:column; align-items:center; }
+
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(18px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  h1,h2,h3{ font-family:'Baloo 2', sans-serif; margin:0; }
+
+  /* ---------- TOPO / SELO ESCOLAR ---------- */
+  .selo{
+    display:flex; align-items:center; gap:10px;
+    background: rgba(247,236,216,0.1);
+    border: 1px solid rgba(247,236,216,0.35);
+    padding:8px 16px; border-radius: 999px;
+    font-size:.82rem; letter-spacing:.3px; font-weight:700;
+    color: var(--sable);
+    margin-bottom: 22px;
+    text-align:center;
+  }
+  .selo b{ color: var(--or-2); }
+
+  /* ---------- TELA INICIAL ---------- */
+  .titulo-wrap{ text-align:center; margin-bottom: 6px; }
+  .kicker{
+    font-size:.95rem; font-weight:800; color: var(--or-2);
+    text-transform: none; letter-spacing:.5px;
+  }
+  .titulo-principal{
+    font-size: clamp(2.6rem, 9vw, 4.2rem);
+    line-height: .95;
+    background: linear-gradient(180deg, #ffffff 0%, #f4c05a 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 6px 0 rgba(0,0,0,.18);
+    margin: 6px 0 2px;
+  }
+  .subtitulo{
+    font-size: 1.05rem; font-weight:700; color: var(--sable); opacity:.9;
+    margin-bottom: 26px;
+  }
+
+  .personagens-linha{
+    display:flex; align-items:flex-end; justify-content:center;
+    gap: 18px; margin: 6px 0 30px;
+    width:100%;
+  }
+  .personagem-card{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    animation: flutuar 3.4s ease-in-out infinite;
+  }
+  .personagem-card.b{ animation-delay: .5s; }
+  @keyframes flutuar{
+    0%,100%{ transform: translateY(0); }
+    50%{ transform: translateY(-10px); }
+  }
+  .personagem-nome{
+    font-family:'Baloo 2', sans-serif;
+    font-size:.95rem; font-weight:700;
+    background: rgba(247,236,216,0.12);
+    padding: 4px 14px; border-radius: 999px;
+    border: 1px solid rgba(247,236,216,.3);
+  }
+
+  .btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700; font-size:1.15rem;
+    border:none; cursor:pointer;
+    padding: 16px 38px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--or-2), var(--or));
+    color: var(--noite);
+    box-shadow: 0 8px 0 #a06d15, 0 14px 24px rgba(0,0,0,.35);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform: translateY(6px); box-shadow: 0 2px 0 #a06d15, 0 6px 14px rgba(0,0,0,.3); }
+  .btn:hover{ transform: translateY(-2px); }
+
+  .btn-secundario{
+    background: rgba(247,236,216,0.08);
+    color: var(--sable);
+    box-shadow: 0 6px 0 rgba(0,0,0,.25), 0 10px 18px rgba(0,0,0,.25);
+    border: 1px solid rgba(247,236,216,.35);
+    font-size: 1rem;
+    padding: 12px 26px;
+  }
+  .btn-secundario:active{ box-shadow: 0 2px 0 rgba(0,0,0,.2); }
+
+  .rodape-inicio{
+    margin-top: 20px; font-size:.85rem; opacity:.7; text-align:center;
+  }
+
+  /* ---------- CARD PADRÃO ---------- */
+  .cartao{
+    width:100%;
+    background: rgba(247, 236, 216, 0.06);
+    border: 1px solid rgba(247,236,216,.18);
+    border-radius: var(--radius);
+    padding: 26px 22px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  }
+
+  /* ---------- SELEÇÃO DE MODO ---------- */
+  .modos{
+    display:flex; flex-direction:column; gap:14px; width:100%; margin-top:18px;
+  }
+  .modo-card{
+    display:flex; align-items:center; gap:16px;
+    background: rgba(247,236,216,.05);
+    border: 2px solid rgba(247,236,216,.18);
+    border-radius: 18px;
+    padding: 16px 18px;
+    cursor:pointer;
+    text-align:left;
+    transition: border-color .15s ease, transform .15s ease, background .15s ease;
+  }
+  .modo-card:hover{ border-color: var(--or-2); transform: translateX(4px); background: rgba(247,236,216,.09); }
+  .modo-icone{
+    width:52px; height:52px; flex:0 0 auto;
+    border-radius: 14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.6rem;
+  }
+  .modo-facil .modo-icone{ background: linear-gradient(160deg, #2ea36f, #1a6b48); }
+  .modo-medio .modo-icone{ background: linear-gradient(160deg, var(--or-2), #b9791f); }
+  .modo-dificil .modo-icone{ background: linear-gradient(160deg, var(--rouge-2), #8c1327); }
+  .modo-texto h3{ font-size: 1.15rem; }
+  .modo-texto p{ margin: 3px 0 0; font-size:.85rem; color: var(--sable); opacity:.85; }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-topo{
+    width:100%; display:flex; align-items:center; justify-content:space-between;
+    gap: 12px; margin-bottom: 14px; flex-wrap:wrap;
+  }
+  .progresso-info{ font-family:'Baloo 2', sans-serif; font-size:1rem; }
+  .placar{
+    background: var(--or-2); color:var(--noite); font-weight:800;
+    padding: 6px 14px; border-radius: 999px; font-family:'Baloo 2', sans-serif;
+    display:flex; align-items:center; gap:6px;
+  }
+  .barra-progresso{
+    width:100%; height:10px; border-radius:999px;
+    background: rgba(247,236,216,.15); overflow:hidden; margin-bottom:16px;
+  }
+  .barra-progresso > div{
+    height:100%; border-radius:999px;
+    background: linear-gradient(90deg, var(--or-2), var(--rouge-2));
+    transition: width .35s ease;
+  }
+  .timer-wrap{
+    display:flex; align-items:center; gap:8px; font-family:'Baloo 2', sans-serif;
+    font-weight:700; font-size:.95rem;
+    transition: transform .2s ease;
+  }
+  .timer-wrap.pulso{ animation: pulsoTempo .4s ease; }
+  @keyframes pulsoTempo{
+    0%{ transform: scale(1); } 40%{ transform: scale(1.18); } 100%{ transform: scale(1); }
+  }
+  .timer-barra{
+    width:90px; height:8px; border-radius:999px; background: rgba(247,236,216,.15); overflow:hidden;
+  }
+  .timer-barra > div{ height:100%; background: var(--verde); width:100%; transition: width .5s linear, background .3s ease; }
+  .timer-barra > div.baixo{ background: var(--rouge-2); }
+  #timer-numero.ganhou{ color: #6de3a8; }
+  #timer-numero.perdeu{ color: var(--rouge-2); }
+
+  .quiz-cabecalho{
+    display:flex; align-items:center; gap:14px; margin-bottom: 18px;
+  }
+  .mascote-pequeno{ width:64px; height:64px; flex:0 0 auto; }
+  .pergunta-texto{ font-family:'Baloo 2', sans-serif; font-size:1.25rem; line-height:1.3; }
+
+  .opcoes{ display:flex; flex-direction:column; gap:12px; }
+  .opcao{
+    text-align:left;
+    background: rgba(247,236,216,.05);
+    border: 2px solid rgba(247,236,216,.2);
+    color: var(--branco);
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-family:'Nunito', sans-serif;
+    font-weight:700; font-size:1rem;
+    cursor:pointer;
+    display:flex; align-items:center; gap:12px;
+    transition: all .15s ease;
+  }
+  .opcao:hover{ border-color: var(--or-2); background: rgba(247,236,216,.1); }
+  .opcao .letra{
+    width:30px; height:30px; border-radius:50%;
+    background: rgba(247,236,216,.12);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Baloo 2', sans-serif; flex:0 0 auto; font-size:.9rem;
+  }
+  .opcao.correta{ border-color:#2ea36f; background: rgba(46,163,111,.25); }
+  .opcao.errada{ border-color: var(--rouge-2); background: rgba(224,41,74,.25); }
+  .opcao[disabled]{ cursor:default; }
+  .opcao:disabled:hover{ transform:none; }
+
+  .feedback{
+    margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+    font-size:.9rem; font-weight:600; line-height:1.4;
+    background: rgba(247,236,216,.08); border:1px solid rgba(247,236,216,.2);
+    display:none;
+  }
+  .feedback.mostrar{ display:block; animation: rise .3s ease both; }
+
+  .continuar-wrap{ width:100%; display:flex; justify-content:flex-end; margin-top:16px; }
+
+  /* ---------- RESULTADO ---------- */
+  .resultado-topo{ text-align:center; margin-bottom: 18px; }
+  .resultado-numero{
+    font-family:'Baloo 2', sans-serif; font-size: 3.4rem;
+    background: linear-gradient(180deg, #ffffff, var(--or-2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .resultado-frase{ font-size:1.05rem; font-weight:700; margin-top:4px; }
+  .barra-acoes{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:22px; }
+
+  .revisao{ width:100%; margin-top:22px; display:flex; flex-direction:column; gap:10px; }
+  .revisao-item{
+    display:flex; gap:10px; align-items:flex-start;
+    background: rgba(247,236,216,.05); border:1px solid rgba(247,236,216,.15);
+    border-radius: 12px; padding: 10px 12px; font-size:.85rem;
+  }
+  .revisao-marca{ font-size:1.1rem; flex:0 0 auto; }
+
+  /* ---------- GAME OVER ---------- */
+  .cartao-gameover{
+    border-color: rgba(224,41,74,.4);
+    background: rgba(200, 31, 60, 0.1);
+  }
+  .gameover-selo{
+    display:inline-flex; align-items:center; gap:8px;
+    background: rgba(224,41,74,.18); border:1px solid rgba(224,41,74,.5);
+    padding: 6px 16px; border-radius:999px; font-family:'Baloo 2', sans-serif;
+    font-weight:700; font-size:.85rem; color: #ffb3c0; margin-bottom:12px;
+  }
+  .gameover-titulo{
+    font-size: clamp(2.2rem, 8vw, 3rem);
+    background: linear-gradient(180deg, #ffffff, var(--rouge-2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom: 4px;
+  }
+
+  @media (max-width:480px){
+    .personagens-linha{ gap:10px; }
+    .modo-card{ padding:14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sunrays"></div>
+
+<div class="stage">
+
+  <!-- ===================== TELA 1: INÍCIO ===================== -->
+  <section id="tela-inicio" class="screen active">
+    <div class="selo">🎓 <b>1º A</b> · Colégio José Bezerra de Menezes — JBM</div>
+
+    <div class="titulo-wrap">
+      <div class="kicker">TRABALHO DE GEOGRAFIA E HISTÓRIA</div>
+      <h1 class="titulo-principal">Quiz do Haiti</h1>
+      <p class="subtitulo">Descubra a história, a cultura e as curiosidades da primeira república negra do mundo 🇭🇹</p>
+    </div>
+
+    <div class="personagens-linha">
+      <div class="personagem-card">
+        <svg class="mascote" width="118" height="140" viewBox="0 0 118 140" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="59" cy="128" rx="34" ry="8" fill="#000" opacity="0.25"/>
+          <path d="M20 90 Q10 60 30 40 Q40 20 59 18 Q78 20 88 40 Q108 60 98 90 Q100 115 59 118 Q18 115 20 90Z" fill="#1f7a5c"/>
+          <path d="M20 90 Q10 60 30 40 Q40 20 59 18" fill="none" stroke="#155c44" stroke-width="2" opacity="0.4"/>
+          <circle cx="59" cy="52" r="30" fill="#2ea36f"/>
+          <path d="M32 44 Q59 18 86 44 Q88 60 59 66 Q30 60 32 44Z" fill="#c81f3c"/>
+          <circle cx="47" cy="54" r="5" fill="#0c1730"/>
+          <circle cx="71" cy="54" r="5" fill="#0c1730"/>
+          <circle cx="48.5" cy="52.5" r="1.6" fill="#fff"/>
+          <circle cx="72.5" cy="52.5" r="1.6" fill="#fff"/>
+          <path d="M52 65 Q59 72 66 65" stroke="#0c1730" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <path d="M25 55 Q10 50 8 65 Q18 68 27 60Z" fill="#e3a233"/>
+          <path d="M93 55 Q108 50 110 65 Q100 68 91 60Z" fill="#e3a233"/>
+          <rect x="52" y="86" width="14" height="20" rx="6" fill="#0a2e73"/>
+          <rect x="52" y="86" width="14" height="7" rx="3" fill="#c81f3c"/>
+          <path d="M62 88 L80 78 L80 96 L62 96Z" fill="#f4c05a" stroke="#0c1730" stroke-width="1.5"/>
+        </svg>
+        <div class="personagem-nome">Zaza, o Trogon</div>
+      </div>
+
+      <div class="personagem-card b">
+        <svg class="mascote" width="118" height="140" viewBox="0 0 118 140" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="59" cy="128" rx="34" ry="8" fill="#000" opacity="0.25"/>
+          <path d="M30 118 Q28 80 34 66 Q59 56 84 66 Q90 80 88 118Z" fill="#c8862f"/>
+          <ellipse cx="59" cy="88" rx="26" ry="30" fill="#e3a233"/>
+          <ellipse cx="59" cy="88" rx="26" ry="30" fill="none" stroke="#a5661d" stroke-width="3"/>
+          <line x1="34" y1="76" x2="84" y2="76" stroke="#a5661d" stroke-width="3"/>
+          <line x1="34" y1="100" x2="84" y2="100" stroke="#a5661d" stroke-width="3"/>
+          <circle cx="59" cy="38" r="24" fill="#f6d9a6"/>
+          <path d="M35 32 Q59 6 83 32 Q86 20 59 14 Q32 20 35 32Z" fill="#0a2e73"/>
+          <circle cx="49" cy="40" r="4" fill="#0c1730"/>
+          <circle cx="69" cy="40" r="4" fill="#0c1730"/>
+          <path d="M50 50 Q59 56 68 50" stroke="#8c4a1e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="41" cy="46" r="4" fill="#e0294a" opacity="0.5"/>
+          <circle cx="77" cy="46" r="4" fill="#e0294a" opacity="0.5"/>
+          <rect x="20" y="80" width="10" height="26" rx="5" fill="#f6d9a6"/>
+          <rect x="88" y="80" width="10" height="26" rx="5" fill="#f6d9a6"/>
+        </svg>
+        <div class="personagem-nome">Tanbou, o Tambor</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="mudarTela('tela-modo')">Jogar ▸</button>
+    <p class="rodape-inicio">Toque em jogar para escolher o modo e começar o quiz</p>
+  </section>
+
+  <!-- ===================== TELA 2: ESCOLHA DE MODO ===================== -->
+  <section id="tela-modo" class="screen">
+    <div class="cartao">
+      <h2 style="font-size:1.6rem; margin-bottom:4px;">Escolha o modo de jogo</h2>
+      <p style="margin:0; opacity:.85; font-size:.95rem;">O tempo corre durante todo o quiz: acertar ganha tempo extra, errar tira tempo. Se o tempo zerar, é game over!</p>
+
+      <div class="modos">
+        <div class="modo-card modo-facil" onclick="iniciarQuiz('facil')">
+          <div class="modo-icone">🌴</div>
+          <div class="modo-texto">
+            <h3>Fácil</h3>
+            <p>8 perguntas · começa com 40s · +6s no acerto / −4s no erro · 10 pts por acerto</p>
+          </div>
+        </div>
+        <div class="modo-card modo-medio" onclick="iniciarQuiz('medio')">
+          <div class="modo-icone">🥁</div>
+          <div class="modo-texto">
+            <h3>Médio</h3>
+            <p>8 perguntas · começa com 30s · +5s no acerto / −6s no erro · 15 pts por acerto</p>
+          </div>
+        </div>
+        <div class="modo-card modo-dificil" onclick="iniciarQuiz('dificil')">
+          <div class="modo-icone">🔥</div>
+          <div class="modo-texto">
+            <h3>Difícil</h3>
+            <p>8 perguntas · começa com 22s · +4s no acerto / −8s no erro · 20 pts por acerto</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:center; margin-top:22px;">
+        <button class="btn-secundario" onclick="mudarTela('tela-inicio')">◂ Voltar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TELA 3: QUIZ ===================== -->
+  <section id="tela-quiz" class="screen">
+    <div class="cartao">
+      <div class="quiz-topo">
+        <div class="progresso-info" id="info-progresso">Pergunta 1 de 8</div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="timer-wrap" id="timer-wrap" style="display:none;">
+            ⏱️ <span id="timer-numero">20</span>s
+            <div class="timer-barra"><div id="timer-barra-interna"></div></div>
+          </div>
+          <div class="placar">⭐ <span id="placar-numero">0</span></div>
+        </div>
+      </div>
+
+      <div class="barra-progresso"><div id="barra-progresso-interna" style="width:12.5%;"></div></div>
+
+      <div class="quiz-cabecalho">
+        <svg class="mascote-pequeno" viewBox="0 0 118 140" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="59" cy="52" r="30" fill="#2ea36f"/>
+          <path d="M32 44 Q59 18 86 44 Q88 60 59 66 Q30 60 32 44Z" fill="#c81f3c"/>
+          <circle cx="47" cy="54" r="5" fill="#0c1730"/>
+          <circle cx="71" cy="54" r="5" fill="#0c1730"/>
+          <circle cx="48.5" cy="52.5" r="1.6" fill="#fff"/>
+          <circle cx="72.5" cy="52.5" r="1.6" fill="#fff"/>
+          <path d="M52 65 Q59 72 66 65" stroke="#0c1730" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="pergunta-texto" id="pergunta-texto">Carregando pergunta...</div>
+      </div>
+
+      <div class="opcoes" id="opcoes-container"></div>
+
+      <div class="feedback" id="feedback-box"></div>
+
+      <div class="continuar-wrap">
+        <button class="btn" id="btn-continuar" style="display:none;" onclick="proximaPergunta()">Continuar ▸</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TELA 4: RESULTADO ===================== -->
+  <section id="tela-resultado" class="screen">
+    <div class="cartao" style="text-align:center;">
+      <svg width="100" height="118" viewBox="0 0 118 140" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto 6px;">
+        <circle cx="59" cy="38" r="24" fill="#f6d9a6"/>
+        <path d="M35 32 Q59 6 83 32 Q86 20 59 14 Q32 20 35 32Z" fill="#0a2e73"/>
+        <circle cx="49" cy="40" r="4" fill="#0c1730"/>
+        <circle cx="69" cy="40" r="4" fill="#0c1730"/>
+        <path d="M48 48 Q59 58 70 48" stroke="#8c4a1e" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="resultado-topo">
+        <div class="progresso-info" id="resultado-modo">Modo Fácil</div>
+        <div class="resultado-numero" id="resultado-pontos">0 pts</div>
+        <div class="resultado-frase" id="resultado-frase">Continue estudando sobre o Haiti!</div>
+      </div>
+
+      <div class="barra-acoes">
+        <button class="btn" onclick="reiniciarMesmoModo()">Jogar de novo ▸</button>
+        <button class="btn-secundario" onclick="mudarTela('tela-modo')">Trocar modo</button>
+      </div>
+
+      <div class="revisao" id="revisao-container"></div>
+    </div>
+  </section>
+
+  <!-- ===================== TELA 5: GAME OVER ===================== -->
+  <section id="tela-gameover" class="screen">
+    <div class="cartao cartao-gameover" style="text-align:center;">
+      <svg width="100" height="118" viewBox="0 0 118 140" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto 6px;">
+        <circle cx="59" cy="38" r="24" fill="#f6d9a6"/>
+        <path d="M35 32 Q59 6 83 32 Q86 20 59 14 Q32 20 35 32Z" fill="#0a2e73"/>
+        <path d="M42 36 L56 44 M56 36 L42 44" stroke="#0c1730" stroke-width="3" stroke-linecap="round"/>
+        <path d="M62 36 L76 44 M76 36 L62 44" stroke="#0c1730" stroke-width="3" stroke-linecap="round"/>
+        <path d="M48 52 Q59 46 70 52" stroke="#8c4a1e" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="gameover-selo">⏱️ O tempo acabou</div>
+      <h2 class="gameover-titulo">Game Over!</h2>
+      <div class="resultado-numero" id="gameover-pontos" style="font-size:2.6rem;">0 pts</div>
+      <p class="resultado-frase" id="gameover-frase" style="margin-top:6px;">Você chegou até a pergunta X de 8.</p>
+
+      <div class="barra-acoes">
+        <button class="btn" onclick="reiniciarMesmoModo()">Tentar de novo ▸</button>
+        <button class="btn-secundario" onclick="mudarTela('tela-modo')">Trocar modo</button>
+      </div>
+
+      <div class="revisao" id="gameover-revisao"></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // ---------- BANCO DE PERGUNTAS SOBRE O HAITI ----------
+  const BANCO_PERGUNTAS = [
+    { pergunta: "Qual é a capital do Haiti?", opcoes: ["Havana", "Porto Príncipe", "Santo Domingo", "Kingston"], correta: 1, dica: "É também a maior cidade do país, localizada na costa." },
+    { pergunta: "Em que ano o Haiti se tornou independente?", opcoes: ["1789", "1804", "1822", "1791"], correta: 1, dica: "1804 marca a independência, tornando o Haiti a primeira república negra do mundo." },
+    { pergunta: "Qual país colonizava o Haiti antes de sua independência?", opcoes: ["Espanha", "Inglaterra", "França", "Portugal"], correta: 2, dica: "A colônia era chamada de Saint-Domingue." },
+    { pergunta: "Quem foi o principal líder da Revolução Haitiana?", opcoes: ["Simón Bolívar", "Toussaint Louverture", "José Martí", "Fidel Castro"], correta: 1, dica: "Ele é considerado o 'Pai do Haiti', apesar de morrer antes da independência ser declarada." },
+    { pergunta: "O Haiti fica em qual ilha do Caribe?", opcoes: ["Cuba", "Jamaica", "Hispaniola", "Porto Rico"], correta: 2, dica: "Essa ilha é dividida entre o Haiti e a República Dominicana." },
+    { pergunta: "Qual país faz fronteira terrestre com o Haiti?", opcoes: ["Cuba", "República Dominicana", "Jamaica", "Porto Rico"], correta: 1, dica: "Os dois países dividem a mesma ilha, mas têm línguas e histórias diferentes." },
+    { pergunta: "Quais são as línguas oficiais do Haiti?", opcoes: ["Espanhol e inglês", "Francês e crioulo haitiano", "Português e francês", "Inglês e crioulo"], correta: 1, dica: "O crioulo haitiano (kreyòl) nasceu do contato entre o francês e línguas africanas." },
+    { pergunta: "Quem declarou a independência do Haiti em 1804?", opcoes: ["Jean-Jacques Dessalines", "Napoleão Bonaparte", "Henri Christophe", "Alexandre Pétion"], correta: 0, dica: "Ele se tornou o primeiro governante do Haiti independente." },
+    { pergunta: "O que as cores da bandeira do Haiti (azul e vermelho) representam?", opcoes: ["O mar e o sol", "A união entre negros e mulatos na luta pela independência", "A monarquia francesa", "A natureza tropical"], correta: 1, dica: "As cores foram criadas rasgando a bandeira francesa e retirando a faixa branca." },
+    { pergunta: "Qual religião é praticada no Haiti junto com o catolicismo, e é parte importante da cultura local?", opcoes: ["Budismo", "Vodu haitiano", "Xintoísmo", "Hinduísmo"], correta: 1, dica: "Essa religião mistura tradições africanas trazidas por povos escravizados." },
+    { pergunta: "Em que ano um forte terremoto atingiu o Haiti, causando grande destruição em Porto Príncipe?", opcoes: ["2004", "2010", "2015", "1998"], correta: 1, dica: "Foi um dos desastres naturais mais graves da história recente do país." },
+    { pergunta: "Qual é o nome do prato à base de porco frito, muito tradicional na culinária haitiana?", opcoes: ["Griot", "Feijoada", "Mofongo", "Ropa vieja"], correta: 0, dica: "Costuma ser servido com banana-da-terra frita (bannann peze) e arroz." },
+    { pergunta: "Qual estilo musical, misturando ritmos afro-caribenhos e influências francesas, é típico do Haiti?", opcoes: ["Reggaeton", "Compas (kompa)", "Salsa", "Merengue"], correta: 1, dica: "É um dos ritmos mais dançados em festas e no Carnaval haitiano." },
+    { pergunta: "O Haiti foi a primeira nação do mundo a abolir permanentemente que prática?", opcoes: ["A monarquia", "A escravidão", "O trabalho infantil", "A propriedade privada"], correta: 1, dica: "A revolução foi liderada majoritariamente por pessoas escravizadas." },
+    { pergunta: "Qual é a moeda oficial do Haiti?", opcoes: ["Peso haitiano", "Dólar caribenho", "Gourde", "Real haitiano"], correta: 2, dica: "O símbolo dessa moeda é 'G'." },
+    { pergunta: "Quem foi Henri Christophe, importante figura da história haitiana?", opcoes: ["Um pintor francês", "Um rei do Haiti que construiu a Cidadela Laferrière", "Um explorador espanhol", "Um presidente dos EUA"], correta: 1, dica: "A fortaleza que ele mandou construir é hoje Patrimônio da Humanidade pela UNESCO." },
+    { pergunta: "Qual continente é a principal origem ancestral da maioria da população haitiana, trazida durante o período colonial?", opcoes: ["Ásia", "África", "Oceania", "América do Norte"], correta: 1, dica: "Milhões de africanos foram escravizados e levados para trabalhar nas plantações de açúcar." },
+    { pergunta: "O nome 'Haiti' vem de uma palavra indígena taína que significa o quê?", opcoes: ["Terra de montanhas", "Ilha do sol", "Terra dos deuses", "Água doce"], correta: 0, dica: "Os taínos foram os povos originários que habitavam a ilha antes da colonização." }
+  ];
+
+  // ---------- ESTADO DO JOGO ----------
+  // tempoInicial: tempo total com que o jogo começa (compartilhado entre todas as perguntas)
+  // bonus: segundos ganhos ao acertar | penalidade: segundos perdidos ao errar
+  const CONFIG_MODOS = {
+    facil:   { nome: "Fácil",   qtd: 8, tempoInicial: 40, bonus: 6, penalidade: 4, pontos: 10 },
+    medio:   { nome: "Médio",   qtd: 8, tempoInicial: 30, bonus: 5, penalidade: 6, pontos: 15 },
+    dificil: { nome: "Difícil", qtd: 8, tempoInicial: 22, bonus: 4, penalidade: 8, pontos: 20 }
+  };
+
+  let estado = {
+    modo: null,
+    perguntas: [],
+    indiceAtual: 0,
+    pontuacao: 0,
+    respondida: false,
+    historico: [],
+    timerId: null,
+    tempoRestante: 0,
+    tempoMax: 0,
+    acabouOTempo: false
+  };
+
+  function embaralhar(array){
+    const copia = [...array];
+    for(let i = copia.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    return copia;
+  }
+
+  function mudarTela(idTela){
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+    document.getElementById(idTela).classList.add('active');
+    window.scrollTo({top: 0, behavior:'smooth'});
+  }
+
+  function iniciarQuiz(modo){
+    const config = CONFIG_MODOS[modo];
+    estado.modo = modo;
+    estado.perguntas = embaralhar(BANCO_PERGUNTAS).slice(0, config.qtd);
+    estado.indiceAtual = 0;
+    estado.pontuacao = 0;
+    estado.historico = [];
+    estado.tempoRestante = config.tempoInicial;
+    estado.tempoMax = config.tempoInicial;
+    estado.acabouOTempo = false;
+    document.getElementById('placar-numero').textContent = '0';
+    document.getElementById('timer-wrap').style.display = 'flex';
+    mudarTela('tela-quiz');
+    atualizarVisualTimer();
+    mostrarPergunta();
+    iniciarTimer();
+  }
+
+  function reiniciarMesmoModo(){
+    iniciarQuiz(estado.modo);
+  }
+
+  function pararTimer(){
+    if(estado.timerId){
+      clearInterval(estado.timerId);
+      estado.timerId = null;
+    }
+  }
+
+  function atualizarVisualTimer(){
+    const numero = document.getElementById('timer-numero');
+    const barra = document.getElementById('timer-barra-interna');
+    const tempo = Math.max(estado.tempoRestante, 0);
+    numero.textContent = tempo;
+    const porcentagem = Math.min(100, (tempo / estado.tempoMax) * 100);
+    barra.style.width = `${porcentagem}%`;
+    barra.classList.toggle('baixo', porcentagem <= 30);
+  }
+
+  function iniciarTimer(){
+    pararTimer();
+    estado.timerId = setInterval(() => {
+      estado.tempoRestante--;
+      atualizarVisualTimer();
+      if(estado.tempoRestante <= 0){
+        pararTimer();
+        estado.acabouOTempo = true;
+        mostrarGameOver();
+      }
+    }, 1000);
+  }
+
+  function mostrarPergunta(){
+    estado.respondida = false;
+    const dados = estado.perguntas[estado.indiceAtual];
+
+    document.getElementById('info-progresso').textContent =
+      `Pergunta ${estado.indiceAtual + 1} de ${estado.perguntas.length}`;
+    document.getElementById('barra-progresso-interna').style.width =
+      `${((estado.indiceAtual) / estado.perguntas.length) * 100}%`;
+
+    document.getElementById('pergunta-texto').textContent = dados.pergunta;
+    document.getElementById('feedback-box').classList.remove('mostrar');
+    document.getElementById('feedback-box').textContent = '';
+    document.getElementById('btn-continuar').style.display = 'none';
+
+    const letras = ['A', 'B', 'C', 'D'];
+    const opcoesContainer = document.getElementById('opcoes-container');
+    opcoesContainer.innerHTML = '';
+
+    // embaralha as opções mantendo referência do índice correto
+    const opcoesComIndice = dados.opcoes.map((texto, i) => ({texto, ehCorreta: i === dados.correta}));
+    const opcoesEmbaralhadas = embaralhar(opcoesComIndice);
+
+    opcoesEmbaralhadas.forEach((op, i) => {
+      const botao = document.createElement('button');
+      botao.className = 'opcao';
+      botao.innerHTML = `<span class="letra">${letras[i]}</span><span>${op.texto}</span>`;
+      botao.onclick = () => responder(botao, op.ehCorreta, dados);
+      opcoesContainer.appendChild(botao);
+    });
+  }
+
+  function responder(botaoClicado, acertou, dados){
+    if(estado.respondida) return;
+    estado.respondida = true;
+    pararTimer(); // pausa o cronômetro enquanto o feedback é exibido
+
+    const config = CONFIG_MODOS[estado.modo];
+    const botoes = document.querySelectorAll('#opcoes-container .opcao');
+    botoes.forEach(b => b.disabled = true);
+
+    botoes.forEach(b => {
+      const texto = b.querySelector('span:last-child').textContent;
+      if(texto === dados.opcoes[dados.correta]){
+        b.classList.add('correta');
+      }
+    });
+
+    if(botaoClicado && !acertou){
+      botaoClicado.classList.add('errada');
+    }
+
+    const feedback = document.getElementById('feedback-box');
+    feedback.classList.add('mostrar');
+
+    // ---- aplica bônus/penalidade de tempo ----
+    const timerWrap = document.getElementById('timer-wrap');
+    const numero = document.getElementById('timer-numero');
+    numero.classList.remove('ganhou', 'perdeu');
+    timerWrap.classList.remove('pulso');
+
+    if(acertou){
+      estado.pontuacao += config.pontos;
+      document.getElementById('placar-numero').textContent = estado.pontuacao;
+      estado.tempoRestante += config.bonus;
+      feedback.textContent = `✅ Isso mesmo! Você ganhou +${config.bonus}s. ${dados.dica}`;
+      numero.classList.add('ganhou');
+    } else {
+      estado.tempoRestante -= config.penalidade;
+      feedback.textContent = `❌ Quase! A resposta certa é "${dados.opcoes[dados.correta]}" (−${config.penalidade}s). ${dados.dica}`;
+      numero.classList.add('perdeu');
+    }
+    void timerWrap.offsetWidth; // reinicia a animação
+    timerWrap.classList.add('pulso');
+    atualizarVisualTimer();
+
+    estado.historico.push({
+      pergunta: dados.pergunta,
+      correta: dados.opcoes[dados.correta],
+      acertou: acertou
+    });
+
+    if(estado.tempoRestante <= 0){
+      estado.acabouOTempo = true;
+      // dá um instante para o jogador ver o feedback antes do game over
+      setTimeout(mostrarGameOver, 1400);
+    } else {
+      document.getElementById('btn-continuar').style.display = 'inline-block';
+    }
+  }
+
+  function proximaPergunta(){
+    estado.indiceAtual++;
+    if(estado.indiceAtual >= estado.perguntas.length){
+      mostrarResultado();
+    } else {
+      mostrarPergunta();
+      iniciarTimer();
+    }
+  }
+
+  function mostrarResultado(){
+    pararTimer();
+    document.getElementById('barra-progresso-interna').style.width = '100%';
+    const config = CONFIG_MODOS[estado.modo];
+    const acertos = estado.historico.filter(h => h.acertou).length;
+    const total = estado.historico.length;
+
+    document.getElementById('resultado-modo').textContent = `Modo ${config.nome} · ${acertos} de ${total} acertos`;
+    document.getElementById('resultado-pontos').textContent = `${estado.pontuacao} pts`;
+
+    let frase;
+    const proporcao = acertos / total;
+    if(proporcao === 1){
+      frase = "Perfeito! Você conhece muito bem a história do Haiti! 🏆";
+    } else if(proporcao >= 0.7){
+      frase = "Muito bem! Você manda bem nesse assunto! 🎉";
+    } else if(proporcao >= 0.4){
+      frase = "Bom começo! Vale a pena revisar mais um pouco. 📚";
+    } else {
+      frase = "Bora estudar mais sobre o Haiti e tentar de novo! 💪";
+    }
+    document.getElementById('resultado-frase').textContent = frase;
+
+    const revisaoContainer = document.getElementById('revisao-container');
+    revisaoContainer.innerHTML = '';
+    estado.historico.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'revisao-item';
+      div.innerHTML = `
+        <span class="revisao-marca">${item.acertou ? '✅' : '❌'}</span>
+        <span>${item.pergunta}${item.acertou ? '' : ` — resposta certa: <b>${item.correta}</b>`}</span>
+      `;
+      revisaoContainer.appendChild(div);
+    });
+
+    mudarTela('tela-resultado');
+  }
+
+  function mostrarGameOver(){
+    pararTimer();
+    const config = CONFIG_MODOS[estado.modo];
+    const acertos = estado.historico.filter(h => h.acertou).length;
+    const perguntasRespondidas = estado.historico.length;
+
+    document.getElementById('gameover-pontos').textContent = `${estado.pontuacao} pts`;
+    document.getElementById('gameover-frase').textContent =
+      `Modo ${config.nome} · Você respondeu ${perguntasRespondidas} de ${estado.perguntas.length} perguntas, acertando ${acertos}. Não deixe o cronômetro zerar da próxima vez!`;
+
+    const revisaoContainer = document.getElementById('gameover-revisao');
+    revisaoContainer.innerHTML = '';
+    estado.historico.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'revisao-item';
+      div.innerHTML = `
+        <span class="revisao-marca">${item.acertou ? '✅' : '❌'}</span>
+        <span>${item.pergunta}${item.acertou ? '' : ` — resposta certa: <b>${item.correta}</b>`}</span>
+      `;
+      revisaoContainer.appendChild(div);
+    });
+
+    mudarTela('tela-gameover');
+  }
+</script>
+
+</body>
+</html>

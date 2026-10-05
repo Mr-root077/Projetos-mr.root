@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Matrix Magic Cube</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    overflow: hidden;
+    background: #000;
+    font-family: Arial, sans-serif;
+    color: #00ff41;
+}
+
+/* FUNDO MATRIX */
+
+#matrix {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(circle at center,
+        rgba(0,255,60,.12),
+        rgba(0,0,0,.85) 70%);
+    z-index: -1;
+}
+
+/* CABEÇALHO */
+
+.header {
+    position: absolute;
+    top: 25px;
+    width: 100%;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 38px;
+    letter-spacing: 8px;
+    text-shadow:
+        0 0 5px #00ff41,
+        0 0 15px #00ff41,
+        0 0 35px #00ff41;
+}
+
+.header p {
+    margin-top: 8px;
+    color: #66ff88;
+    font-size: 13px;
+    letter-spacing: 4px;
+}
+
+/* ÁREA DO CUBO */
+
+.scene {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+
+    left: 50%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        scale(.9);
+
+    perspective: 1000px;
+}
+
+.cube {
+    width: 180px;
+    height: 180px;
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    transform-style: preserve-3d;
+
+    transform:
+        translate(-50%, -50%)
+        rotateX(-25deg)
+        rotateY(35deg);
+
+    transition: transform 1s ease;
+}
+
+/* CADA FACE */
+
+.face {
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+
+    gap: 5px;
+
+    padding: 5px;
+
+    background: #001b08;
+
+    border: 2px solid #00ff41;
+
+    box-shadow:
+        inset 0 0 25px rgba(0,255,65,.25),
+        0 0 15px rgba(0,255,65,.6);
+}
+
+/* QUADRADOS */
+
+.cell {
+    position: relative;
+
+    border: 1px solid #00ff41;
+
+    background:
+        linear-gradient(
+            135deg,
+            #001c08,
+            #003d12
+        );
+
+    overflow: hidden;
+
+    box-shadow:
+        inset 0 0 12px rgba(0,255,65,.35);
+}
+
+.cell::before {
+    content: "01";
+    position: absolute;
+
+    color: #00ff41;
+
+    font-size: 10px;
+
+    opacity: .7;
+
+    animation: code 1.5s infinite linear;
+}
+
+.cell::after {
+    content: "101";
+    position: absolute;
+
+    bottom: 2px;
+    right: 3px;
+
+    color: #00ff41;
+
+    font-size: 8px;
+
+    opacity: .4;
+}
+
+@keyframes code {
+    0% {
+        transform: translateY(-15px);
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(15px);
+        opacity: 0;
+    }
+}
+
+/* POSIÇÃO DAS FACES */
+
+.front {
+    transform: translateZ(90px);
+}
+
+.back {
+    transform:
+        rotateY(180deg)
+        translateZ(90px);
+}
+
+.right {
+    transform:
+        rotateY(90deg)
+        translateZ(90px);
+}
+
+.left {
+    transform:
+        rotateY(-90deg)
+        translateZ(90px);
+}
+
+.top {
+    transform:
+        rotateX(90deg)
+        translateZ(90px);
+}
+
+.bottom {
+    transform:
+        rotateX(-90deg)
+        translateZ(90px);
+}
+
+/* BRILHO CENTRAL */
+
+.center {
+    background:
+        radial-gradient(
+            circle,
+            #00ff41,
+            #003b0f 65%,
+            #001b08
+        );
+
+    box-shadow:
+        0 0 15px #00ff41,
+        inset 0 0 20px #00ff41;
+}
+
+/* CONTROLES */
+
+.controls {
+    position: absolute;
+
+    bottom: 35px;
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+}
+
+button {
+    padding: 12px 22px;
+
+    background: rgba(0,20,5,.8);
+
+    border: 1px solid #00ff41;
+
+    color: #00ff41;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    letter-spacing: 1px;
+
+    box-shadow:
+        0 0 10px rgba(0,255,65,.3);
+
+    transition: .2s;
+}
+
+button:hover {
+    background: #00ff41;
+    color: #000;
+
+    box-shadow:
+        0 0 20px #00ff41,
+        0 0 40px #00ff41;
+
+    transform: translateY(-2px);
+}
+
+/* TEXTO */
+
+.status {
+    position: absolute;
+
+    left: 25px;
+    bottom: 25px;
+
+    font-size: 12px;
+
+    opacity: .7;
+}
+
+.status span {
+    color: #fff;
+}
+
+/* MOBILE */
+
+@media(max-width:600px) {
+
+    .header h1 {
+        font-size: 25px;
+        letter-spacing: 4px;
+    }
+
+    .scene {
+        transform:
+            translate(-50%, -50%)
+            scale(.7);
+    }
+
+    .controls {
+        flex-wrap: wrap;
+        padding: 0 20px;
+    }
+
+    .status {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="overlay"></div>
+
+<div class="header">
+    <h1>MATRIX CUBE</h1>
+    <p>ENTER THE DIGITAL WORLD</p>
+</div>
+
+
+<!-- CUBO -->
+
+<div class="scene">
+
+    <div class="cube" id="cube">
+
+        <!-- FRENTE -->
+        <div class="face front">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell center"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+
+        <!-- TRÁS -->
+        <div class="face back">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell center"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+
+        <!-- DIREITA -->
+        <div class="face right">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell center"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+
+        <!-- ESQUERDA -->
+        <div class="face left">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell center"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+
+        <!-- CIMA -->
+        <div class="face top">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell center"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+
+        <!-- BAIXO -->
+        <div class="face bottom">
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell center"></div>
+            <div class="cell"></div>
+
+            <div class="cell"></div>
+            <div class="cell"></div>
+            <div class="cell"></div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="status">
+    STATUS: <span>ONLINE</span>
+</div>
+
+
+<!-- CONTROLES -->
+
+<div class="controls">
+
+    <button onclick="rotateCube()">
+        ↻ GIRAR
+    </button>
+
+    <button onclick="shuffleCube()">
+        ⚡ EMBARALHAR
+    </button>
+
+    <button onclick="solveCube()">
+        ◈ RESETAR
+    </button>
+
+</div>
+
+
+<script>
+
+/* ==========================
+   MATRIX RAIN
+========================== */
+
+const canvas = document.getElementById("matrix");
+
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const characters =
+"01ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコ";
+
+const fontSize = 15;
+
+let columns =
+Math.floor(canvas.width / fontSize);
+
+let drops = [];
+
+for(let i = 0; i < columns; i++){
+    drops[i] =
+    Math.random() * canvas.height / fontSize;
+}
+
+
+function drawMatrix(){
+
+    ctx.fillStyle =
+    "rgba(0,0,0,0.08)";
+
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.fillStyle =
+    "#00ff41";
+
+    ctx.font =
+    fontSize + "px monospace";
+
+    for(let i = 0; i < drops.length; i++){
+
+        const text =
+        characters[
+            Math.floor(
+                Math.random() *
+                characters.length
+            )
+        ];
+
+        ctx.fillText(
+            text,
+            i * fontSize,
+            drops[i] * fontSize
+        );
+
+        if(
+            drops[i] * fontSize >
+            canvas.height &&
+            Math.random() > .975
+        ){
+            drops[i] = 0;
+        }
+
+        drops[i]++;
+    }
+}
+
+setInterval(drawMatrix, 35);
+
+
+/* ==========================
+   CUBO 3D
+========================== */
+
+const cube =
+document.getElementById("cube");
+
+let rotationX = -25;
+let rotationY = 35;
+
+
+function updateCube(){
+
+    cube.style.transform =
+    `
+    translate(-50%, -50%)
+    rotateX(${rotationX}deg)
+    rotateY(${rotationY}deg)
+    `;
+}
+
+
+/* GIRAR */
+
+function rotateCube(){
+
+    rotationY += 90;
+
+    updateCube();
+}
+
+
+/* EMBARALHAR */
+
+function shuffleCube(){
+
+    let moves = 0;
+
+    const interval =
+    setInterval(() => {
+
+        rotationY +=
+        Math.floor(
+            Math.random() * 4
+        ) * 90;
+
+        rotationX +=
+        Math.floor(
+            Math.random() * 3
+        ) * 90;
+
+        updateCube();
+
+        moves++;
+
+        if(moves >= 8){
+
+            clearInterval(interval);
+
+        }
+
+    }, 250);
+}
+
+
+/* RESETAR */
+
+function solveCube(){
+
+    rotationX = -25;
+    rotationY = 35;
+
+    updateCube();
+}
+
+
+/* ==========================
+   MOUSE
+========================== */
+
+let mouseDown = false;
+
+let lastX = 0;
+let lastY = 0;
+
+
+document.addEventListener(
+    "mousedown",
+    e => {
+
+        mouseDown = true;
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+    }
+);
+
+
+document.addEventListener(
+    "mouseup",
+    () => {
+
+        mouseDown = false;
+
+    }
+);
+
+
+document.addEventListener(
+    "mousemove",
+    e => {
+
+        if(!mouseDown)
+            return;
+
+        const dx =
+        e.clientX - lastX;
+
+        const dy =
+        e.clientY - lastY;
+
+        rotationY += dx * .5;
+
+        rotationX -= dy * .5;
+
+        updateCube();
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+    }
+);
+
+
+/* ==========================
+   TOUCH MOBILE
+========================== */
+
+document.addEventListener(
+    "touchstart",
+    e => {
+
+        lastX =
+        e.touches[0].clientX;
+
+        lastY =
+        e.touches[0].clientY;
+
+    }
+);
+
+
+document.addEventListener(
+    "touchmove",
+    e => {
+
+        const x =
+        e.touches[0].clientX;
+
+        const y =
+        e.touches[0].clientY;
+
+        const dx =
+        x - lastX;
+
+        const dy =
+        y - lastY;
+
+        rotationY += dx * .5;
+
+        rotationX -= dy * .5;
+
+        updateCube();
+
+        lastX = x;
+        lastY = y;
+
+    }
+);
+
+
+/* ==========================
+   RESPONSIVO
+========================== */
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        canvas.width =
+        window.innerWidth;
+
+        canvas.height =
+        window.innerHeight;
+
+        columns =
+        Math.floor(
+            canvas.width / fontSize
+        );
+
+        drops = [];
+
+        for(
+            let i = 0;
+            i < columns;
+            i++
+        ){
+
+            drops[i] =
+            Math.random() *
+            canvas.height /
+            fontSize;
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>

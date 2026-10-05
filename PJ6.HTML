@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MR-ROOT · Miner Dashboard</title>
+<meta name="description" content="MR-ROOT Miner Dashboard — Monitoramento. Controle. Tecnologia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07060B;
+  --bg-2:#0B0912;
+  --panel:#100C1B;
+  --panel-2:#150F24;
+  --line:#241A3D;
+  --line-soft:#1B1430;
+  --violet:#A855F7;
+  --violet-2:#C77DFF;
+  --violet-deep:#6D28D9;
+  --ink:#F4F1FB;
+  --ink-2:#B9B2CE;
+  --gray:#8B84A3;
+  --gray-2:#5D5773;
+  --amber:#FFB020;
+  --red:#FF4D6D;
+  --cyan:#5BE8FF;
+  --rail:248px;
+  --gap:20px;
+  --r:14px;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --display:"Chakra Petch","IBM Plex Sans",system-ui,sans-serif;
+}
+/* A identidade do painel é fixa em roxo sobre preto, por especificação do projeto. */
+:root:not([data-theme="light"]),:root[data-theme="dark"],:root[data-theme="light"]{color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 420px at 18% -10%,rgba(124,58,237,.20),transparent 60%),
+    radial-gradient(700px 380px at 92% 4%,rgba(168,85,247,.12),transparent 62%);
+}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--violet-2);outline-offset:2px;border-radius:6px}
+
+/* ---------- LAYOUT ---------- */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh}
+
+/* ---------- SIDEBAR ---------- */
+.rail{
+  grid-column:1;background:linear-gradient(180deg,#0C0915,#08060E);
+  border-right:1px solid var(--line-soft);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:12px;padding:22px 20px 18px}
+.mark{width:42px;height:42px;flex:none;filter:drop-shadow(0 0 12px rgba(168,85,247,.45))}
+.brand-txt{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.brand-name{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.06em}
+.brand-sub{font-size:10.5px;color:var(--gray-2);letter-spacing:.16em;font-family:var(--mono)}
+.nav{padding:8px 12px;overflow-y:auto;flex:1}
+.nav-group{font-size:11px;color:var(--gray-2);padding:14px 10px 6px;font-family:var(--mono);letter-spacing:.1em}
+.nav a{
+  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;
+  color:var(--ink-2);text-decoration:none;font-size:14.5px;font-weight:500;
+  border:1px solid transparent;position:relative;
+}
+.nav a svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;opacity:.75}
+.nav a:hover{background:rgba(168,85,247,.07);color:var(--ink)}
+.nav a[aria-current="page"]{
+  background:linear-gradient(90deg,rgba(168,85,247,.20),rgba(168,85,247,.04));
+  border-color:rgba(168,85,247,.38);color:#fff;
+}
+.nav a[aria-current="page"]::before{
+  content:"";position:absolute;left:-12px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;
+  background:var(--violet-2);box-shadow:0 0 10px var(--violet);
+}
+.nav a[aria-current="page"] svg{opacity:1;color:var(--violet-2)}
+.nav .badge{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--violet-2);
+  background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);padding:1px 6px;border-radius:20px}
+.rail-foot{padding:16px 20px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--gray-2);font-family:var(--mono)}
+.rail-foot b{display:block;color:var(--violet-2);font-weight:500;letter-spacing:.04em;margin-bottom:3px}
+
+/* ---------- TOPBAR ---------- */
+.main{grid-column:2;min-width:0;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:16px;
+  padding:14px 26px;background:rgba(7,6,11,.82);
+  backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft);
+}
+.burger{display:none;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px;cursor:pointer}
+.burger svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:1.8;display:block}
+.top-title{font-family:var(--display);font-size:17px;letter-spacing:.1em;font-weight:700}
+.top-title span{color:var(--violet-2)}
+.top-tag{font-size:12px;color:var(--gray);margin-left:2px}
+.top-meta{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--panel);font-size:12.5px;color:var(--ink-2);white-space:nowrap;
+}
+.chip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7}
+.chip.online{border-color:rgba(168,85,247,.42);color:#EBDFFF;background:rgba(109,40,217,.16)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--violet-2);box-shadow:0 0 0 0 rgba(199,125,255,.55);animation:pulse 2.4s infinite}
+.dot.off{background:var(--red);box-shadow:none;animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 7px rgba(199,125,255,0)}100%{box-shadow:0 0 0 0 rgba(199,125,255,0)}}
+.clock{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);text-align:right;line-height:1.25}
+.clock b{display:block;font-weight:500;color:#fff;font-size:14px;letter-spacing:.04em}
+.clock small{color:var(--gray-2)}
+.profile{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 5px;border-radius:999px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+.avatar{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--violet),var(--violet-deep));font-family:var(--display);font-size:12.5px;font-weight:700;color:#fff}
+.profile-txt{line-height:1.15;font-size:12.5px}
+.profile-txt small{display:block;color:var(--gray-2);font-size:11px}
+
+/* ---------- PAGE ---------- */
+.page{padding:26px;display:none;max-width:1560px;width:100%}
+.page.is-active{display:block}
+.page-head{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:22px}
+.page-head h1{font-family:var(--display);font-size:27px;margin:0;letter-spacing:.02em;font-weight:600}
+.page-head p{margin:5px 0 0;color:var(--gray);font-size:14px;max-width:62ch}
+.page-head .spacer{margin-left:auto}
+
+/* ---------- CARDS ---------- */
+.grid{display:grid;gap:var(--gap)}
+.g-stats{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.g-2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--bg-2));
+  border:1px solid var(--line);border-radius:var(--r);padding:20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 18px 40px -30px rgba(0,0,0,.9);
+  min-width:0;position:relative;
+}
+.card.accent{border-color:rgba(168,85,247,.40);box-shadow:0 0 0 1px rgba(168,85,247,.08),0 0 34px -18px rgba(168,85,247,.55)}
+.card-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.card-head h2,.card-head h3{margin:0;font-size:14.5px;font-weight:600;letter-spacing:.01em}
+.card-head .ico{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;
+  background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.26)}
+.card-head .ico svg{width:15px;height:15px;stroke:var(--violet-2);fill:none;stroke-width:1.7}
+.card-head .right{margin-left:auto;font-size:12px;color:var(--gray-2);font-family:var(--mono)}
+
+.stat .label{font-size:12.5px;color:var(--gray);display:flex;align-items:center;gap:8px}
+.stat .value{font-family:var(--display);font-size:33px;font-weight:600;letter-spacing:.01em;margin:10px 0 2px;line-height:1}
+.stat .value u{text-decoration:none;font-size:15px;color:var(--gray);margin-left:5px;font-weight:500}
+.stat .foot{font-size:12px;color:var(--gray-2);font-family:var(--mono);display:flex;align-items:center;gap:7px}
+.trend{color:var(--violet-2)}
+.trend.down{color:var(--red)}
+.spark{width:100%;height:34px;margin-top:12px;display:block;overflow:visible}
+.bar{height:5px;border-radius:99px;background:var(--line-soft);overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--violet-deep),var(--violet-2));transition:width .6s ease}
+.bar.warm i{background:linear-gradient(90deg,#B45309,var(--amber))}
+
+/* ---------- TABELAS / LISTAS ---------- */
+.kv{display:grid;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:11px;overflow:hidden}
+.kv div{display:flex;justify-content:space-between;align-items:center;gap:14px;background:var(--panel-2);padding:11px 14px;font-size:13.5px}
+.kv dt,.kv span:first-child{color:var(--gray)}
+.kv b{font-family:var(--mono);font-weight:500;color:var(--ink);text-align:right;word-break:break-all}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font-weight:500;color:var(--gray-2);font-size:11.5px;font-family:var(--mono);padding:0 12px 10px;border-bottom:1px solid var(--line-soft);letter-spacing:.06em}
+.tbl td{padding:12px;border-bottom:1px solid var(--line-soft)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td.num{font-family:var(--mono);text-align:right;white-space:nowrap}
+.tbl-wrap{overflow-x:auto}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-family:var(--mono);padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);white-space:nowrap}
+.pill.ok{color:#E3D2FF;border-color:rgba(168,85,247,.4);background:rgba(109,40,217,.16)}
+.pill.warn{color:#FFD79A;border-color:rgba(255,176,32,.35);background:rgba(255,176,32,.10)}
+.pill.err{color:#FFB3C2;border-color:rgba(255,77,109,.35);background:rgba(255,77,109,.10)}
+
+/* ---------- BOTÕES / FILTROS ---------- */
+.seg{display:inline-flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:11px;background:var(--bg-2)}
+.seg button{background:transparent;border:0;padding:7px 14px;border-radius:8px;font-size:12.5px;color:var(--gray);cursor:pointer;font-family:var(--mono)}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:rgba(168,85,247,.18);color:#fff;box-shadow:inset 0 0 0 1px rgba(168,85,247,.38)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--line);background:var(--panel-2);font-size:13.5px;font-weight:500}
+.btn:hover{border-color:rgba(168,85,247,.45);background:rgba(168,85,247,.10)}
+.btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7}
+.btn.primary{background:linear-gradient(135deg,var(--violet-deep),var(--violet));border-color:transparent;color:#fff}
+.btn.primary:hover{filter:brightness(1.12)}
+.btn.ghost{background:transparent}
+
+/* ---------- GRÁFICOS ---------- */
+.chart-box{position:relative;width:100%}
+.chart-box svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.chart-tip{
+  position:absolute;pointer-events:none;opacity:0;transform:translate(-50%,-118%);
+  background:#150F24;border:1px solid rgba(168,85,247,.45);border-radius:9px;padding:7px 10px;
+  font-family:var(--mono);font-size:11.5px;white-space:nowrap;z-index:5;
+  box-shadow:0 10px 26px -12px #000;transition:opacity .12s
+}
+.chart-tip b{display:block;font-size:13.5px;font-weight:500;color:#fff}
+.chart-tip small{color:var(--gray-2)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--gray);margin-top:12px;font-family:var(--mono)}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:7px}
+
+/* ---------- MINERADOR ---------- */
+.miner-lay{display:grid;grid-template-columns:minmax(260px,340px) minmax(0,1fr);gap:var(--gap);align-items:start}
+.rig{display:grid;place-items:center;padding:8px 0 16px}
+.rig svg{width:100%;max-width:290px;height:auto}
+@media (prefers-reduced-motion:no-preference){
+  .fan-blades{transform-origin:110px 96px;animation:spin 1.1s linear infinite}
+  .led-a{animation:blink 1.9s ease-in-out infinite}
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.gauge-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:12px}
+.gauge{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:11px;padding:13px 14px}
+.gauge span{font-size:11.5px;color:var(--gray-2);font-family:var(--mono)}
+.gauge b{display:block;font-family:var(--display);font-size:21px;font-weight:600;margin-top:5px}
+.gauge b em{font-style:normal;font-size:12px;color:var(--gray);margin-left:3px}
+
+/* ---------- LOGS ---------- */
+.console{
+  background:#08060F;border:1px solid var(--line-soft);border-radius:12px;
+  font-family:var(--mono);font-size:12.5px;line-height:1.75;
+  max-height:440px;overflow:auto;padding:6px 0;
+}
+.log-row{display:grid;grid-template-columns:78px 96px minmax(0,1fr);gap:12px;padding:5px 16px;border-left:2px solid transparent}
+.log-row:hover{background:rgba(168,85,247,.05)}
+.log-row time{color:var(--gray-2)}
+.log-row .src{color:var(--violet-2);opacity:.85}
+.log-row .msg{color:var(--ink-2);word-break:break-word}
+.log-row[data-level="ok"]{border-left-color:rgba(168,85,247,.55)}
+.log-row[data-level="warn"]{border-left-color:var(--amber)}
+.log-row[data-level="warn"] .msg{color:#FFD79A}
+.log-row[data-level="err"]{border-left-color:var(--red)}
+.log-row[data-level="err"] .msg{color:#FFB3C2}
+
+/* ---------- FORMULÁRIOS ---------- */
+.field{display:block;margin-bottom:15px}
+.field span{display:block;font-size:12.5px;color:var(--gray);margin-bottom:6px}
+.field input,.field select{
+  width:100%;padding:10px 12px;border-radius:10px;background:#0A0812;
+  border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:13px;
+}
+.field input:focus,.field select:focus{border-color:var(--violet);outline:none}
+.field small{display:block;color:var(--gray-2);font-size:11.5px;margin-top:6px}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line-soft)}
+.switch:last-child{border-bottom:0}
+.switch p{margin:0;font-size:13.5px}
+.switch small{display:block;color:var(--gray-2);font-size:12px;margin-top:2px}
+.toggle{width:44px;height:25px;border-radius:99px;background:var(--line);border:1px solid var(--line);position:relative;cursor:pointer;flex:none;transition:background .2s}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:var(--gray);transition:.2s}
+.toggle[aria-checked="true"]{background:rgba(168,85,247,.32);border-color:rgba(168,85,247,.5)}
+.toggle[aria-checked="true"]::after{left:21px;background:var(--violet-2);box-shadow:0 0 10px var(--violet)}
+
+.note{display:flex;gap:12px;padding:14px 16px;border-radius:12px;font-size:13px;color:var(--ink-2);
+  border:1px solid rgba(168,85,247,.28);background:rgba(109,40,217,.10)}
+.note svg{width:18px;height:18px;flex:none;stroke:var(--violet-2);fill:none;stroke-width:1.7;margin-top:1px}
+.note.warn{border-color:rgba(255,176,32,.3);background:rgba(255,176,32,.07)}
+.note.warn svg{stroke:var(--amber)}
+.addr{font-family:var(--mono);font-size:13px;background:#0A0812;border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;word-break:break-all;color:var(--ink-2);display:flex;gap:12px;align-items:center}
+.addr code{flex:1;min-width:0}
+.stack{display:grid;gap:var(--gap)}
+.mt{margin-top:var(--gap)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.scrim{display:none}
+
+/* ---------- RESPONSIVO ---------- */
+@media (max-width:1180px){
+  .miner-lay{grid-template-columns:1fr}
+}
+@media (max-width:980px){
+  .shell{grid-template-columns:1fr}
+  .rail{
+    position:fixed;top:0;left:0;bottom:0;width:272px;z-index:60;height:100dvh;
+    transform:translateX(-102%);transition:transform .22s ease;box-shadow:24px 0 60px -30px #000;
+  }
+  body.nav-open .rail{transform:none}
+  body.nav-open .scrim{display:block;position:fixed;inset:0;background:rgba(4,3,8,.68);z-index:50;backdrop-filter:blur(2px)}
+  .main{grid-column:1}
+  .burger{display:block}
+  .page{padding:18px 16px}
+  .topbar{padding:12px 16px;gap:10px}
+  .top-tag,.profile-txt{display:none}
+  .profile{padding:5px}
+}
+@media (max-width:620px){
+  .page-head h1{font-size:23px}
+  .stat .value{font-size:28px}
+  .chip.wifi,.clock small{display:none}
+  .log-row{grid-template-columns:66px minmax(0,1fr);gap:8px}
+  .log-row .src{display:none}
+  .card{padding:16px}
+  :root{--gap:14px}
+}
+@media print{.rail,.topbar{display:none}}
+</style>
+</head>
+<body>
+
+<div class="scrim" id="scrim" aria-hidden="true"></div>
+
+<div class="shell">
+
+  <!-- ===================== MENU LATERAL ===================== -->
+  <aside class="rail" id="rail" aria-label="Navegação principal">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true">
+        <defs>
+          <linearGradient id="gMark" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#C77DFF"/><stop offset="1" stop-color="#6D28D9"/>
+          </linearGradient>
+        </defs>
+        <rect x="2.5" y="2.5" width="43" height="43" rx="12" fill="#12091F" stroke="url(#gMark)" stroke-width="1.6"/>
+        <path d="M12 34V14l6.4 9.2L24.8 14v20" fill="none" stroke="url(#gMark)" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M29.5 34V14h4.6a4.9 4.9 0 0 1 0 9.8h-4.6" fill="none" stroke="#F4F1FB" stroke-width="3.1" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M32.6 23.8 37 34" fill="none" stroke="#F4F1FB" stroke-width="3.1" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-txt">
+        <span class="brand-name">MR-ROOT</span>
+        <span class="brand-sub">MINER DASHBOARD</span>
+      </span>
+    </div>
+
+    <nav class="nav" id="nav">
+      <p class="nav-group">operação</p>
+      <a href="#dashboard" data-route="dashboard" aria-current="page">
+        <svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>Dashboard</a>
+      <a href="#minerador" data-route="minerador">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h7M17 9v6"/></svg>Minerador</a>
+      <a href="#carteira" data-route="carteira">
+        <svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h13v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M16 11h4v4h-4a2 2 0 0 1 0-4z"/></svg>Carteira Bitcoin</a>
+      <a href="#graficos" data-route="graficos">
+        <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l4-6 3 3 5-7"/></svg>Gráficos</a>
+      <a href="#pool" data-route="pool">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="2.6"/><circle cx="5.5" cy="18" r="2.6"/><circle cx="18.5" cy="18" r="2.6"/><path d="M12 8.6v4.4M12 13H6.6M12 13h5.4"/></svg>Pool</a>
+
+      <p class="nav-group">sistema</p>
+      <a href="#logs" data-route="logs">
+        <svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M9 12h6M9 16h4"/></svg>Logs<span class="badge" id="logCount">0</span></a>
+      <a href="#configuracoes" data-route="configuracoes">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 14a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V20a2 2 0 1 1-4 0 1.6 1.6 0 0 0-2.8-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 4 14a2 2 0 1 1 0-4 1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 10 4a2 2 0 1 1 4 0 1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1A1.6 1.6 0 0 0 20 10a2 2 0 1 1 0 4z"/></svg>Configurações</a>
+      <a href="#sobre" data-route="sobre">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>Sobre</a>
+    </nav>
+
+    <div class="rail-foot">
+      <b>Monitoramento. Controle. Tecnologia.</b>
+      firmware 2.4.1 · modo <span id="railMode">demo</span>
+    </div>
+  </aside>
+
+  <!-- ===================== ÁREA PRINCIPAL ===================== -->
+  <div class="main">
+
+    <!-- TOPO -->
+    <header class="topbar">
+      <button class="burger" id="burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="rail">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div>
+        <div class="top-title">MR<span>-</span>ROOT</div>
+      </div>
+      <span class="top-tag">Monitoramento. Controle. Tecnologia.</span>
+
+      <div class="top-meta">
+        <span class="chip online" id="chipStatus"><i class="dot" id="statusDot"></i><span id="statusTxt">Minerador Online</span></span>
+        <span class="chip wifi" title="Rede local">
+          <svg viewBox="0 0 24 24"><path d="M2.5 8.5a15 15 0 0 1 19 0M5.5 12a10.5 10.5 0 0 1 13 0M8.5 15.5a6 6 0 0 1 7 0"/><path d="M12 19h.01"/></svg>
+          <span id="wifiTxt">MR-NET · −48 dBm</span>
+        </span>
+        <span class="clock"><b id="clockTime">--:--:--</b><small id="clockDate">—</small></span>
+        <button class="profile" type="button" title="Perfil do operador">
+          <span class="avatar">MR</span>
+          <span class="profile-txt">Operador<small>root@mr-root</small></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ DASHBOARD ============ -->
+    <section class="page is-active" id="page-dashboard">
+      <div class="page-head">
+        <div>
+          <h1>Dashboard</h1>
+          <p>Telemetria consolidada da unidade de mineração, atualizada a cada <span id="pollLabel">5</span> segundos.</p>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn ghost" id="btnRefresh"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>Atualizar agora</button>
+      </div>
+
+      <div class="grid g-stats">
+        <article class="card stat accent">
+          <div class="label">Hashrate</div>
+          <div class="value" id="kHash">—<u>TH/s</u></div>
+          <div class="foot"><span class="trend" id="kHashTrend">—</span> média 1h</div>
+          <svg class="spark" id="sparkHash" viewBox="0 0 200 34" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </article>
+
+        <article class="card stat">
+          <div class="label">Temperatura do chip</div>
+          <div class="value" id="kTemp">—<u>°C</u></div>
+          <div class="foot"><span id="kTempState">—</span> · limite <span id="kTempLimit">75</span> °C</div>
+          <div class="bar warm"><i id="kTempBar" style="width:0%"></i></div>
+        </article>
+
+        <article class="card stat">
+          <div class="label">Consumo</div>
+          <div class="value" id="kWatt">—<u>W</u></div>
+          <div class="foot"><span id="kEff">—</span> J/TH · eficiência</div>
+          <svg class="spark" id="sparkWatt" viewBox="0 0 200 34" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </article>
+
+        <article class="card stat">
+          <div class="label">Tempo de atividade</div>
+          <div class="value" id="kUptime">—</div>
+          <div class="foot">desde <span id="kSince">—</span></div>
+          <div class="bar"><i style="width:99.6%"></i></div>
+        </article>
+
+        <article class="card stat">
+          <div class="label">Shares aceitas</div>
+          <div class="value" id="kAcc">—</div>
+          <div class="foot"><span id="kAccRate">—</span>% de aproveitamento</div>
+          <div class="bar"><i id="kAccBar" style="width:0%"></i></div>
+        </article>
+
+        <article class="card stat">
+          <div class="label">Shares rejeitadas</div>
+          <div class="value" id="kRej">—</div>
+          <div class="foot">última há <span id="kRejAgo">—</span></div>
+          <svg class="spark" id="sparkRej" viewBox="0 0 200 34" preserveAspectRatio="none" aria-hidden="true"></svg>
+        </article>
+
+        <article class="card stat">
+          <div class="label">Status do minerador</div>
+          <div class="value" id="kState" style="font-size:24px">—</div>
+          <div class="foot">frequência <span id="kFreqMini">—</span> MHz · fan <span id="kFanMini">—</span> RPM</div>
+          <div class="mt" style="margin-top:14px"><span class="pill ok" id="kPoolPill">pool conectado</span></div>
+        </article>
+      </div>
+
+      <div class="card mt">
+        <div class="card-head">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 4-7 5 5"/></svg></span>
+          <h2>Evolução do hashrate</h2>
+          <div class="spacer" style="margin-left:auto"></div>
+          <div class="seg" data-seg="dash">
+            <button type="button" data-range="24h" aria-pressed="true">24h</button>
+            <button type="button" data-range="7d" aria-pressed="false">7 dias</button>
+            <button type="button" data-range="30d" aria-pressed="false">30 dias</button>
+            <button type="button" data-range="1a" aria-pressed="false">1 ano</button>
+          </div>
+        </div>
+        <div class="chart-box" id="boxDashHash"></div>
+        <div class="legend"><span><i style="background:#C77DFF"></i>Hashrate (TH/s)</span><span><i style="background:#3A2A5E"></i>Média do período</span></div>
+      </div>
+
+      <div class="grid g-2 mt">
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h7"/></svg></span>
+            <h2>Unidade em operação</h2>
+            <span class="right" id="minerRightId">NODE-01</span>
+          </div>
+          <div class="gauge-row">
+            <div class="gauge"><span>hashrate</span><b id="mHash">—<em>TH/s</em></b></div>
+            <div class="gauge"><span>temperatura</span><b id="mTemp">—<em>°C</em></b></div>
+            <div class="gauge"><span>frequência</span><b id="mFreq">—<em>MHz</em></b></div>
+            <div class="gauge"><span>fan</span><b id="mFan">—<em>RPM</em></b></div>
+          </div>
+          <div class="note mt" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span>Abra <a href="#minerador" data-jump="minerador" style="color:var(--violet-2)">Minerador</a> para ver o diagrama da placa e o detalhamento do hardware.</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M9 12h6M9 16h4"/></svg></span>
+            <h2>Eventos recentes</h2>
+            <span class="right"><a href="#logs" data-jump="logs" style="color:var(--violet-2);text-decoration:none">ver tudo</a></span>
+          </div>
+          <div class="console" id="miniLog" style="max-height:268px"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ MINERADOR ============ -->
+    <section class="page" id="page-minerador">
+      <div class="page-head">
+        <div>
+          <h1>Minerador</h1>
+          <p>Estado do hardware, dissipação e parâmetros de operação da placa ASIC.</p>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn ghost" id="btnRestart"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>Reiniciar minerador</button>
+      </div>
+
+      <div class="miner-lay">
+        <article class="card accent">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg></span>
+            <h2 id="minerName">MR-ROOT S1 Mini</h2>
+          </div>
+
+          <!-- Representação do mini ASIC -->
+          <div class="rig">
+            <svg viewBox="0 0 220 210" role="img" aria-label="Diagrama do mini ASIC MR-ROOT com dissipador e ventoinha">
+              <defs>
+                <linearGradient id="pcb" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#1A1030"/><stop offset="1" stop-color="#0D0819"/>
+                </linearGradient>
+                <linearGradient id="fin" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#4B3A70"/><stop offset="1" stop-color="#241A3D"/>
+                </linearGradient>
+                <radialGradient id="glow"><stop offset="0" stop-color="#A855F7" stop-opacity=".5"/><stop offset="1" stop-color="#A855F7" stop-opacity="0"/></radialGradient>
+              </defs>
+
+              <ellipse cx="110" cy="188" rx="86" ry="14" fill="url(#glow)"/>
+
+              <!-- placa -->
+              <rect x="22" y="36" width="176" height="146" rx="10" fill="url(#pcb)" stroke="#3A2A5E" stroke-width="1.4"/>
+              <g stroke="#2E2150" stroke-width="1" fill="none" opacity=".9">
+                <path d="M32 168h50M32 160h34M96 168h30M140 168h48"/>
+                <path d="M34 48v28h22M186 48v40h-24M60 92h-26"/>
+              </g>
+              <g fill="#3A2A5E"><circle cx="31" cy="45" r="2.4"/><circle cx="189" cy="45" r="2.4"/><circle cx="31" cy="173" r="2.4"/><circle cx="189" cy="173" r="2.4"/></g>
+
+              <!-- dissipador -->
+              <rect x="56" y="52" width="108" height="92" rx="7" fill="#170F28" stroke="#4B3A70" stroke-width="1.3"/>
+              <g fill="url(#fin)">
+                <rect x="62" y="58" width="9" height="80" rx="2.5"/><rect x="75" y="58" width="9" height="80" rx="2.5"/>
+                <rect x="88" y="58" width="9" height="80" rx="2.5"/><rect x="101" y="58" width="9" height="80" rx="2.5"/>
+                <rect x="114" y="58" width="9" height="80" rx="2.5"/><rect x="127" y="58" width="9" height="80" rx="2.5"/>
+                <rect x="140" y="58" width="9" height="80" rx="2.5"/><rect x="149" y="58" width="9" height="80" rx="2.5"/>
+              </g>
+
+              <!-- ventoinha -->
+              <circle cx="110" cy="96" r="34" fill="#0C0817" stroke="#6D28D9" stroke-width="1.5" opacity=".96"/>
+              <g class="fan-blades">
+                <g fill="#A855F7" opacity=".9">
+                  <path d="M110 96c0-14 5-22 12-26 4 9 2 20-12 26z"/>
+                  <path d="M110 96c12 7 16 15 16 23-10 1-19-5-16-23z" transform="rotate(0 110 96)"/>
+                  <path d="M110 96c-12 7-16 15-16 23 10 1 19-5 16-23z"/>
+                  <path d="M110 96c-13 6-22 5-28 0 6-8 16-11 28 0z"/>
+                  <path d="M110 96c13 6 22 5 28 0-6-8-16-11-28 0z"/>
+                </g>
+              </g>
+              <circle cx="110" cy="96" r="8" fill="#150F24" stroke="#C77DFF" stroke-width="1.4"/>
+              <circle cx="110" cy="96" r="2.6" fill="#C77DFF"/>
+
+              <!-- chips e leds -->
+              <rect x="30" y="100" width="20" height="34" rx="3" fill="#150F24" stroke="#3A2A5E"/>
+              <rect x="170" y="100" width="20" height="34" rx="3" fill="#150F24" stroke="#3A2A5E"/>
+              <rect x="30" y="52" width="20" height="16" rx="3" fill="#150F24" stroke="#3A2A5E"/>
+              <rect x="170" y="52" width="20" height="16" rx="3" fill="#150F24" stroke="#3A2A5E"/>
+              <circle class="led-a" cx="40" cy="146" r="3.4" fill="#C77DFF"/>
+              <circle cx="52" cy="146" r="3.4" fill="#3A2A5E"/>
+
+              <!-- conector / etiqueta -->
+              <rect x="86" y="156" width="48" height="16" rx="4" fill="#0A0712" stroke="#4B3A70"/>
+              <path d="M96 164h4M106 164h4M116 164h4" stroke="#8B84A3" stroke-width="2" stroke-linecap="round"/>
+              <text x="110" y="28" text-anchor="middle" font-family="Chakra Petch,sans-serif" font-size="13" font-weight="700" letter-spacing="3" fill="#C77DFF">MR-ROOT</text>
+              <text x="110" y="202" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="#5D5773">ASIC BM1370 · 1 hashboard</text>
+            </svg>
+          </div>
+
+          <div class="kv">
+            <div><span>Status</span><b id="hwStatus">—</b></div>
+            <div><span>Modelo</span><b>S1 Mini · BM1370</b></div>
+            <div><span>Firmware</span><b>2.4.1</b></div>
+          </div>
+        </article>
+
+        <div class="stack">
+          <article class="card">
+            <div class="card-head">
+              <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>
+              <h2>Leituras em tempo real</h2>
+              <span class="right" id="hwUpdated">—</span>
+            </div>
+            <div class="gauge-row">
+              <div class="gauge"><span>hashrate atual</span><b id="hwHash">—<em>TH/s</em></b></div>
+              <div class="gauge"><span>temperatura</span><b id="hwTemp">—<em>°C</em></b></div>
+              <div class="gauge"><span>frequência</span><b id="hwFreq">—<em>MHz</em></b></div>
+              <div class="gauge"><span>fan</span><b id="hwFan">—<em>RPM</em></b></div>
+              <div class="gauge"><span>consumo</span><b id="hwWatt">—<em>W</em></b></div>
+              <div class="gauge"><span>tensão do core</span><b id="hwVolt">—<em>mV</em></b></div>
+              <div class="gauge"><span>uptime</span><b id="hwUptime">—</b></div>
+              <div class="gauge"><span>eficiência</span><b id="hwEff">—<em>J/TH</em></b></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="2.6"/><circle cx="5.5" cy="18" r="2.6"/><circle cx="18.5" cy="18" r="2.6"/><path d="M12 8.6v4.4M12 13H6.6M12 13h5.4"/></svg></span>
+              <h2>Conexão e identificação</h2>
+            </div>
+            <div class="kv">
+              <div><span>Nome do minerador</span><b>MR-ROOT NODE-01</b></div>
+              <div><span>Pool conectado</span><b id="hwPool">—</b></div>
+              <div><span>Worker</span><b id="hwWorker">—</b></div>
+              <div><span>Endereço IP</span><b>192.168.0.42</b></div>
+              <div><span>MAC</span><b>A4:CF:12:9E:7B:10</b></div>
+              <div><span>Rede Wi-Fi</span><b id="hwWifi">—</b></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-head">
+              <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M3 12h4M17 12h4"/></svg></span>
+              <h2>Temperatura da última hora</h2>
+              <span class="right">°C</span>
+            </div>
+            <div class="chart-box" id="boxMinerTemp"></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CARTEIRA ============ -->
+    <section class="page" id="page-carteira">
+      <div class="page-head">
+        <div>
+          <h1>Carteira Bitcoin</h1>
+          <p>Somente informações públicas da carteira de recebimento, lidas de um explorador de blocos.</p>
+        </div>
+      </div>
+
+      <div class="note warn">
+        <svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></svg>
+        <span><b>O MR-ROOT nunca pede, guarda ou exibe senha, chave privada ou seed phrase.</b> O painel trabalha apenas com o endereço público, em modo somente leitura. Se qualquer tela pedir sua seed, não é o MR-ROOT.</span>
+      </div>
+
+      <div class="grid g-stats mt">
+        <article class="card stat accent">
+          <div class="label">Saldo total</div>
+          <div class="value" id="wBal">—<u>BTC</u></div>
+          <div class="foot">≈ <span id="wFiat">—</span> · cotação <span id="wPrice">—</span></div>
+        </article>
+        <article class="card stat">
+          <div class="label">Saldo disponível</div>
+          <div class="value" id="wAvail">—<u>BTC</u></div>
+          <div class="foot">confirmado em 6+ blocos</div>
+        </article>
+        <article class="card stat">
+          <div class="label">Pendente</div>
+          <div class="value" id="wPend">—<u>BTC</u></div>
+          <div class="foot">aguardando confirmação</div>
+        </article>
+        <article class="card stat">
+          <div class="label">Transações</div>
+          <div class="value" id="wTx">—</div>
+          <div class="foot">recebidas neste endereço</div>
+        </article>
+      </div>
+
+      <div class="grid g-2 mt">
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg></span>
+            <h2>Endereço público de recebimento</h2>
+          </div>
+          <div class="addr">
+            <code id="wAddr">bc1qmrr00t9x4e2vhq7d3k8p5sfz0naw6tq2ljyu8c</code>
+            <button class="btn ghost" id="btnCopyAddr" style="padding:7px 10px">
+              <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></svg>Copiar
+            </button>
+          </div>
+          <div class="kv mt" style="margin-top:16px">
+            <div><span>Tipo</span><b>Native SegWit (bech32)</b></div>
+            <div><span>Rede</span><b>Bitcoin mainnet</b></div>
+            <div><span>Fonte dos dados</span><b>mempool.space (leitura)</b></div>
+            <div><span>Última atualização</span><b id="wUpdated">—</b></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l4-6 3 3 5-7"/></svg></span>
+            <h2>Acúmulo de saldo</h2>
+            <span class="right">BTC · 30 dias</span>
+          </div>
+          <div class="chart-box" id="boxWallet"></div>
+        </article>
+      </div>
+
+      <article class="card mt">
+        <div class="card-head">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+          <h2>Transações recentes</h2>
+          <span class="right">somente leitura</span>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>data</th><th>tipo</th><th>id da transação</th><th>confirmações</th><th style="text-align:right">valor (BTC)</th></tr></thead>
+            <tbody id="wTxBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============ GRÁFICOS ============ -->
+    <section class="page" id="page-graficos">
+      <div class="page-head">
+        <div>
+          <h1>Gráficos</h1>
+          <p>Séries históricas de desempenho, dissipação térmica e consumo elétrico.</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg" data-seg="charts">
+          <button type="button" data-range="24h" aria-pressed="true">24h</button>
+          <button type="button" data-range="7d" aria-pressed="false">7 dias</button>
+          <button type="button" data-range="30d" aria-pressed="false">30 dias</button>
+          <button type="button" data-range="1a" aria-pressed="false">1 ano</button>
+        </div>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 3 4-7 5 5"/></svg></span>
+          <h2>Hashrate</h2>
+          <span class="right" id="statHash">—</span>
+        </div>
+        <div class="chart-box" id="boxHash"></div>
+      </article>
+
+      <div class="grid g-2 mt">
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4.5 4.5 0 1 1-4 0z"/></svg></span>
+            <h2>Temperatura</h2>
+            <span class="right" id="statTemp">—</span>
+          </div>
+          <div class="chart-box" id="boxTemp"></div>
+          <div class="legend"><span><i style="background:#FFB020"></i>Chip (°C)</span><span><i style="background:#3A2A5E"></i>Limite de alerta</span></div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M13 3 4 14h7l-1 7 9-11h-7z"/></svg></span>
+            <h2>Consumo de energia</h2>
+            <span class="right" id="statWatt">—</span>
+          </div>
+          <div class="chart-box" id="boxWatt"></div>
+          <div class="legend"><span><i style="background:#5BE8FF"></i>Potência (W)</span></div>
+        </article>
+      </div>
+
+      <div class="grid g-2 mt">
+        <article class="card">
+          <div class="card-head"><span class="ico"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><h2>Shares no período</h2></div>
+          <div class="chart-box" id="boxShares"></div>
+          <div class="legend"><span><i style="background:#A855F7"></i>Aceitas</span><span><i style="background:#FF4D6D"></i>Rejeitadas</span></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><h2>Resumo do período</h2></div>
+          <div class="kv">
+            <div><span>Hashrate médio</span><b id="sumHash">—</b></div>
+            <div><span>Pico de hashrate</span><b id="sumHashMax">—</b></div>
+            <div><span>Temperatura média</span><b id="sumTemp">—</b></div>
+            <div><span>Pico de temperatura</span><b id="sumTempMax">—</b></div>
+            <div><span>Consumo médio</span><b id="sumWatt">—</b></div>
+            <div><span>Energia estimada</span><b id="sumKwh">—</b></div>
+            <div><span>Disponibilidade</span><b id="sumUp">—</b></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ POOL ============ -->
+    <section class="page" id="page-pool">
+      <div class="page-head">
+        <div>
+          <h1>Pool</h1>
+          <p>Conexão stratum, identificação do worker e contabilidade de shares.</p>
+        </div>
+      </div>
+
+      <div class="grid g-stats">
+        <article class="card stat accent">
+          <div class="label">Status da conexão</div>
+          <div class="value" id="pState" style="font-size:24px">—</div>
+          <div class="foot">latência <span id="pPing">—</span> ms · <span id="pSince">—</span></div>
+        </article>
+        <article class="card stat">
+          <div class="label">Shares aceitas</div>
+          <div class="value" id="pAcc">—</div>
+          <div class="foot"><span id="pAccPct">—</span>% do total</div>
+          <div class="bar"><i id="pAccBar" style="width:0%"></i></div>
+        </article>
+        <article class="card stat">
+          <div class="label">Shares rejeitadas</div>
+          <div class="value" id="pRej">—</div>
+          <div class="foot">motivo mais comum: stale</div>
+        </article>
+        <article class="card stat">
+          <div class="label">Dificuldade</div>
+          <div class="value" id="pDiff">—</div>
+          <div class="foot">ajuste automático (vardiff)</div>
+        </article>
+      </div>
+
+      <div class="grid g-2 mt">
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="6" r="2.6"/><circle cx="5.5" cy="18" r="2.6"/><circle cx="18.5" cy="18" r="2.6"/><path d="M12 8.6v4.4M12 13H6.6M12 13h5.4"/></svg></span>
+            <h2>Conexão ativa</h2>
+          </div>
+          <div class="kv">
+            <div><span>Pool conectado</span><b>MR-ROOT Public Pool</b></div>
+            <div><span>Endereço</span><b>stratum+tcp://pool.mr-root.io:3333</b></div>
+            <div><span>Worker</span><b>mrroot.node01</b></div>
+            <div><span>Protocolo</span><b>Stratum v1</b></div>
+            <div><span>Dificuldade atual</span><b id="pDiff2">—</b></div>
+            <div><span>Melhor share da sessão</span><b id="pBest">—</b></div>
+            <div><span>Último bloco visto</span><b id="pBlock">—</b></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16l4-6 3 3 5-7"/></svg></span>
+            <h2>Pools configurados</h2>
+            <span class="right">ordem de prioridade</span>
+          </div>
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead><tr><th>#</th><th>endereço</th><th>worker</th><th>estado</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>pool.mr-root.io:3333</td><td>mrroot.node01</td><td><span class="pill ok"><i class="dot" style="width:6px;height:6px;animation:none"></i>ativo</span></td></tr>
+                <tr><td>2</td><td>backup.mr-root.io:3333</td><td>mrroot.node01</td><td><span class="pill">reserva</span></td></tr>
+                <tr><td>3</td><td>solo.ckpool.org:3333</td><td>mrroot.solo</td><td><span class="pill">reserva</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note mt" style="margin-top:16px">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+            <span>Se a conexão principal cair, o minerador troca para a reserva em até 30 segundos e registra o evento nos logs.</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ LOGS ============ -->
+    <section class="page" id="page-logs">
+      <div class="page-head">
+        <div>
+          <h1>Logs do sistema</h1>
+          <p>Eventos do minerador, da pool e da rede, do mais recente para o mais antigo.</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="seg" data-seg="logs">
+          <button type="button" data-level="all" aria-pressed="true">Tudo</button>
+          <button type="button" data-level="ok" aria-pressed="false">Operação</button>
+          <button type="button" data-level="warn" aria-pressed="false">Alertas</button>
+          <button type="button" data-level="err" aria-pressed="false">Falhas</button>
+        </div>
+        <button class="btn ghost" id="btnClearLogs"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>Limpar</button>
+      </div>
+
+      <article class="card">
+        <div class="card-head">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M9 12h6M9 16h4"/></svg></span>
+          <h2>Fluxo de eventos</h2>
+          <span class="right" id="logMeta">—</span>
+        </div>
+        <div class="console" id="fullLog"></div>
+      </article>
+    </section>
+
+    <!-- ============ CONFIGURAÇÕES ============ -->
+    <section class="page" id="page-configuracoes">
+      <div class="page-head">
+        <div>
+          <h1>Configurações</h1>
+          <p>Origem dos dados, limites de alerta e preferências do painel. Nada sai deste navegador.</p>
+        </div>
+      </div>
+
+      <div class="grid g-2">
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h7"/></svg></span>
+            <h2>Conexão com o minerador</h2>
+          </div>
+          <label class="field"><span>Endereço da API do minerador</span>
+            <input id="cfgApi" type="url" placeholder="http://192.168.0.42/api/system/info" value="http://192.168.0.42/api/system/info">
+            <small>Endpoint que devolve hashrate, temperatura, consumo, uptime e shares em JSON.</small>
+          </label>
+          <label class="field"><span>Intervalo de atualização</span>
+            <select id="cfgPoll">
+              <option value="2000">2 segundos</option>
+              <option value="5000" selected>5 segundos</option>
+              <option value="10000">10 segundos</option>
+              <option value="30000">30 segundos</option>
+            </select>
+          </label>
+          <label class="field"><span>Endereço público da carteira</span>
+            <input id="cfgWallet" type="text" value="bc1qmrr00t9x4e2vhq7d3k8p5sfz0naw6tq2ljyu8c">
+            <small>Apenas o endereço público. Chave privada e seed phrase nunca são solicitadas.</small>
+          </label>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn primary" id="btnSave"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Salvar configurações</button>
+            <button class="btn" id="btnTest"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>Testar conexão</button>
+          </div>
+          <p id="cfgMsg" style="font-family:var(--mono);font-size:12.5px;color:var(--gray-2);margin:14px 0 0"></p>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+            <h2>Alertas</h2>
+          </div>
+          <label class="field"><span>Temperatura máxima (°C)</span>
+            <input id="cfgTemp" type="number" min="40" max="95" value="75">
+            <small>Acima disso o cartão de temperatura muda para o estado de atenção e um evento é registrado.</small>
+          </label>
+          <label class="field"><span>Hashrate mínimo aceitável (TH/s)</span>
+            <input id="cfgHash" type="number" min="0" step="0.1" value="0.9">
+          </label>
+          <div class="switch">
+            <p>Alertar queda de pool<small>Registra falha quando o stratum não responde</small></p>
+            <button class="toggle" role="switch" aria-checked="true" aria-label="Alertar queda de pool"></button>
+          </div>
+          <div class="switch">
+            <p>Som nos alertas<small>Aviso sonoro em falhas críticas</small></p>
+            <button class="toggle" role="switch" aria-checked="false" aria-label="Som nos alertas"></button>
+          </div>
+          <div class="switch">
+            <p>Rolagem automática dos logs<small>Mantém o evento mais recente visível</small></p>
+            <button class="toggle" role="switch" aria-checked="true" aria-label="Rolagem automática dos logs"></button>
+          </div>
+        </article>
+      </div>
+
+      <article class="card mt">
+        <div class="card-head">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M8 4h13M8 12h13M8 20h13M3 4h.01M3 12h.01M3 20h.01"/></svg></span>
+          <h2>Formato esperado da API</h2>
+          <span class="right">JSON</span>
+        </div>
+        <p style="color:var(--gray);font-size:13.5px;margin:0 0 12px">Ao apontar o painel para um minerador real, basta que a resposta traga estes campos. O adaptador em <code style="font-family:var(--mono);color:var(--violet-2)">MRROOT.api</code> já converte esse formato para a tela.</p>
+        <div class="console" style="max-height:none;padding:14px 16px;color:var(--ink-2);white-space:pre;overflow-x:auto">{
+  "hashRate": 1180.4,        <span style="color:#5D5773">// GH/s</span>
+  "temp": 61.5,              <span style="color:#5D5773">// °C</span>
+  "power": 18.4,             <span style="color:#5D5773">// W</span>
+  "frequency": 625,          <span style="color:#5D5773">// MHz</span>
+  "fanrpm": 4850,
+  "coreVoltage": 1160,       <span style="color:#5D5773">// mV</span>
+  "uptimeSeconds": 1043820,
+  "sharesAccepted": 184920,
+  "sharesRejected": 143,
+  "stratumURL": "pool.mr-root.io",
+  "stratumUser": "mrroot.node01",
+  "poolDifficulty": 512,
+  "ssid": "MR-NET",
+  "wifiRSSI": -48
+}</div>
+      </article>
+    </section>
+
+    <!-- ============ SOBRE ============ -->
+    <section class="page" id="page-sobre">
+      <div class="page-head">
+        <div>
+          <h1>Sobre o MR-ROOT</h1>
+          <p>Monitoramento. Controle. Tecnologia.</p>
+        </div>
+      </div>
+
+      <div class="grid g-2">
+        <article class="card accent">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></span>
+            <h2>MR-ROOT Miner Dashboard</h2>
+          </div>
+          <p style="color:var(--ink-2);font-size:14px;margin-top:0">Painel de controle para mineradores ASIC domésticos. Reúne desempenho, dissipação térmica, consumo elétrico, contabilidade de shares e saldo público da carteira em uma única tela, pensada para ficar aberta o dia inteiro.</p>
+          <div class="kv mt">
+            <div><span>Versão do painel</span><b>1.0.0</b></div>
+            <div><span>Interface</span><b>HTML · CSS · JavaScript</b></div>
+            <div><span>Dependências externas</span><b>nenhuma</b></div>
+            <div><span>Modo atual</span><b id="aboutMode">demonstração</b></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+            <h2>Como o painel trata seus dados</h2>
+          </div>
+          <div class="kv">
+            <div><span>Chave privada</span><b>nunca solicitada</b></div>
+            <div><span>Seed phrase</span><b>nunca solicitada</b></div>
+            <div><span>Senha de carteira</span><b>nunca solicitada</b></div>
+            <div><span>Carteira</span><b>somente endereço público</b></div>
+            <div><span>Configurações</span><b>salvas neste navegador</b></div>
+          </div>
+          <p style="color:var(--gray);font-size:13px;margin-bottom:0">Os números exibidos agora são simulados para demonstração. Ao informar o endereço da API em Configurações, o painel passa a ler o minerador real.</p>
+        </article>
+      </div>
+
+      <article class="card mt">
+        <div class="card-head">
+          <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span>
+          <h2>Próximos passos da integração</h2>
+        </div>
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>etapa</th><th>o que fazer</th><th>estado</th></tr></thead>
+            <tbody>
+              <tr><td>Adaptador de telemetria</td><td>Apontar <code style="font-family:var(--mono);color:var(--violet-2)">MRROOT.api.endpoint</code> para o minerador na rede local</td><td><span class="pill ok">pronto</span></td></tr>
+              <tr><td>Histórico</td><td>Trocar as séries simuladas por um endpoint de histórico ou banco local</td><td><span class="pill">a fazer</span></td></tr>
+              <tr><td>Carteira</td><td>Ligar o endereço público a um explorador de blocos em modo leitura</td><td><span class="pill">a fazer</span></td></tr>
+              <tr><td>Alertas</td><td>Enviar notificação quando temperatura ou hashrate saírem do limite</td><td><span class="pill">a fazer</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =====================================================================
+   MRROOT — camada de dados
+   ---------------------------------------------------------------------
+   Toda a tela lê de MRROOT.state. Para ligar num minerador real, basta
+   preencher api.endpoint em Configurações: fetchTelemetry() passa a
+   buscar o JSON do equipamento e normalize() converte para o formato
+   interno. Enquanto não houver endpoint acessível, o painel roda em
+   modo demonstração com séries simuladas.
+   ===================================================================== */
+const MRROOT = {
+  api:{
+    endpoint:"",              // ex.: http://192.168.0.42/api/system/info
+    walletEndpoint:"",        // ex.: https://mempool.space/api/address/<addr>
+    pollMs:5000,
+    live:false
+  },
+  limits:{ tempMax:75, hashMin:0.9 },
+  state:{
+    hashrate:1.18, temp:61.5, watt:18.4, freq:625, fan:4850, volt:1160,
+    uptimeSec:1043820, accepted:184920, rejected:143, online:true,
+    pool:"pool.mr-root.io:3333", worker:"mrroot.node01",
+    difficulty:512, ping:38, ssid:"MR-NET", rssi:-48,
+    wallet:{ address:"bc1qmrr00t9x4e2vhq7d3k8p5sfz0naw6tq2ljyu8c",
+             balance:0.04182317, available:0.04121004, pending:0.00061313,
+             txCount:57, price:398750 }
+  },
+
+  async fetchTelemetry(){
+    if(!this.api.endpoint) return this.simulate();
+    try{
+      const r = await fetch(this.api.endpoint,{cache:"no-store"});
+      if(!r.ok) throw new Error("HTTP "+r.status);
+      const raw = await r.json();
+      this.api.live = true;
+      return this.normalize(raw);
+    }catch(e){
+      if(this.api.live){
+        this.api.live = false;
+        Logs.push("err","api","Falha ao ler o minerador: "+e.message+". Voltando ao modo demonstração.");
+      }
+      return this.simulate();
+    }
+  },
+
+  /* Converte a resposta do equipamento para o formato interno. */
+  normalize(d){
+    const s = this.state;
+    const gh = Number(d.hashRate ?? d.hashrate ?? 0);
+    s.hashrate  = gh > 50 ? gh/1000 : gh;          // aceita GH/s ou TH/s
+    s.temp      = Number(d.temp ?? d.temperature ?? s.temp);
+    s.watt      = Number(d.power ?? d.watts ?? s.watt);
+    s.freq      = Number(d.frequency ?? s.freq);
+    s.fan       = Number(d.fanrpm ?? d.fanSpeedRpm ?? s.fan);
+    s.volt      = Number(d.coreVoltage ?? s.volt);
+    s.uptimeSec = Number(d.uptimeSeconds ?? s.uptimeSec);
+    s.accepted  = Number(d.sharesAccepted ?? s.accepted);
+    s.rejected  = Number(d.sharesRejected ?? s.rejected);
+    s.pool      = d.stratumURL ? d.stratumURL+(d.stratumPort?":"+d.stratumPort:"") : s.pool;
+    s.worker    = d.stratumUser ?? s.worker;
+    s.difficulty= Number(d.poolDifficulty ?? s.difficulty);
+    s.ssid      = d.ssid ?? s.ssid;
+    s.rssi      = Number(d.wifiRSSI ?? s.rssi);
+    s.online    = true;
+    return s;
+  },
+
+  /* Modo demonstração: variação suave em torno dos valores nominais. */
+  simulate(){
+    const s = this.state, j=(v,a,min,max)=>Math.min(max,Math.max(min,v+(Math.random()-.5)*a));
+    s.hashrate = +j(s.hashrate,.09,1.02,1.32).toFixed(3);
+    s.temp     = +j(s.temp,.9,54,72).toFixed(1);
+    s.watt     = +j(s.watt,.8,16.2,21.4).toFixed(1);
+    s.fan      = Math.round(j(s.fan,140,4400,5300));
+    s.uptimeSec+= Math.round(this.api.pollMs/1000);
+    s.ping     = Math.round(j(s.ping,9,18,86));
+    s.rssi     = Math.round(j(s.rssi,2,-62,-38));
+    if(Math.random()<.72) s.accepted += 1 + Math.floor(Math.random()*3);
+    if(Math.random()<.012) s.rejected += 1;
+    return s;
+  }
+};
+window.MRROOT = MRROOT;
+
+/* ============================ UTIL ============================ */
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const nf = (n,d=2)=> Number(n).toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
+const ni = n => Math.round(n).toLocaleString("pt-BR");
+const pad = n => String(n).padStart(2,"0");
+
+function uptimeStr(sec){
+  const d=Math.floor(sec/86400), h=Math.floor(sec%86400/3600), m=Math.floor(sec%3600/60);
+  return d>0 ? d+"d "+pad(h)+"h "+pad(m)+"m" : pad(h)+"h "+pad(m)+"m";
+}
+function store(k,v){
+  try{ if(v===undefined) return JSON.parse(localStorage.getItem("mrroot:"+k));
+       localStorage.setItem("mrroot:"+k,JSON.stringify(v)); }catch(e){ return null; }
+}
+
+/* ============================ NAVEGAÇÃO ============================ */
+const routes = ["dashboard","minerador","carteira","graficos","pool","logs","configuracoes","sobre"];
+function go(route){
+  if(!routes.includes(route)) route = "dashboard";
+  $$(".page").forEach(p=> p.classList.toggle("is-active", p.id === "page-"+route));
+  $$("#nav a").forEach(a=>{
+    if(a.dataset.route===route) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+  });
+  document.body.classList.remove("nav-open");
+  $("#burger").setAttribute("aria-expanded","false");
+  window.scrollTo({top:0,behavior:"instant"});
+  if(route==="graficos") drawCharts();
+  if(route==="minerador") drawMinerTemp();
+  if(route==="carteira")  drawWallet();
+}
+window.addEventListener("hashchange",()=> go(location.hash.replace("#","")));
+$("#burger").addEventListener("click",()=>{
+  const open = document.body.classList.toggle("nav-open");
+  $("#burger").setAttribute("aria-expanded", String(open));
+});
+$("#scrim").addEventListener("click",()=> { document.body.classList.remove("nav-open"); $("#burger").setAttribute("aria-expanded","false"); });
+$$("[data-jump]").forEach(el=> el.addEventListener("click",e=>{ e.preventDefault(); location.hash = el.dataset.jump; }));
+
+/* ============================ RELÓGIO ============================ */
+const MESES=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const DIAS=["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];
+function tickClock(){
+  const d=new Date();
+  $("#clockTime").textContent = pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+  $("#clockDate").textContent = DIAS[d.getDay()]+", "+d.getDate()+" "+MESES[d.getMonth()]+" "+d.getFullYear();
+}
+setInterval(tickClock,1000); tickClock();
+
+/* ============================ GRÁFICOS ============================ */
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs){ const n=document.createElementNS(NS,tag); for(const k in attrs) n.setAttribute(k,attrs[k]); return n; }
+
+/**
+ * Desenha um gráfico de linha com área, grade e leitura no toque/hover.
+ * series: [{data:[n], color:"#hex", name:"", fill:true}]
+ */
+function lineChart(box, {series, labels, unit="", height=260, yMin, yMax, refLine, decimals=2}){
+  box.innerHTML="";
+  const W=1000, H=height, padL=54, padR=14, padT=18, padB=30;
+  const svg = el("svg",{viewBox:"0 0 "+W+" "+H,role:"img"});
+  const all = series.flatMap(s=>s.data);
+  let lo = yMin!==undefined ? yMin : Math.min(...all);
+  let hi = yMax!==undefined ? yMax : Math.max(...all, refLine??-Infinity);
+  if(hi===lo){ hi=lo+1; }
+  const span = hi-lo; lo -= span*0.14; hi += span*0.14;
+  const X = i => padL + i*(W-padL-padR)/Math.max(1,(labels.length-1));
+  const Y = v => padT + (hi-v)/(hi-lo)*(H-padT-padB);
+
+  // grade horizontal
+  for(let i=0;i<=4;i++){
+    const v = hi - (hi-lo)*i/4, y = Y(v);
+    svg.appendChild(el("line",{x1:padL,x2:W-padR,y1:y,y2:y,stroke:"#1B1430","stroke-width":1}));
+    const t = el("text",{x:padL-10,y:y+4,"text-anchor":"end",fill:"#5D5773","font-size":11,"font-family":"IBM Plex Mono, monospace"});
+    t.textContent = (Math.abs(v)>=1000? ni(v) : nf(v,decimals));
+    svg.appendChild(t);
+  }
+  // linha de referência
+  if(refLine!==undefined){
+    svg.appendChild(el("line",{x1:padL,x2:W-padR,y1:Y(refLine),y2:Y(refLine),stroke:"#5B3EA8","stroke-width":1.2,"stroke-dasharray":"6 6"}));
+  }
+  // rótulos do eixo x
+  const step = Math.max(1,Math.ceil(labels.length/7));
+  labels.forEach((l,i)=>{
+    if(i%step && i!==labels.length-1) return;
+    const t = el("text",{x:X(i),y:H-9,"text-anchor":"middle",fill:"#5D5773","font-size":11,"font-family":"IBM Plex Mono, monospace"});
+    t.textContent = l; svg.appendChild(t);
+  });
+
+  series.forEach((s,si)=>{
+    const pts = s.data.map((v,i)=>[X(i),Y(v)]);
+    let d = "M"+pts[0][0]+" "+pts[0][1];
+    for(let i=1;i<pts.length;i++){
+      const [x0,y0]=pts[i-1], [x1,y1]=pts[i], mx=(x0+x1)/2;
+      d += " C"+mx+" "+y0+" "+mx+" "+y1+" "+x1+" "+y1;
+    }
+    if(s.fill!==false){
+      const gid="grad"+si+"-"+Math.random().toString(36).slice(2,7);
+      const defs=el("defs"), g=el("linearGradient",{id:gid,x1:0,y1:0,x2:0,y2:1});
+      g.appendChild(el("stop",{offset:"0","stop-color":s.color,"stop-opacity":".34"}));
+      g.appendChild(el("stop",{offset:"1","stop-color":s.color,"stop-opacity":"0"}));
+      defs.appendChild(g); svg.appendChild(defs);
+      svg.appendChild(el("path",{d:d+" L"+pts[pts.length-1][0]+" "+(H-padB)+" L"+pts[0][0]+" "+(H-padB)+" Z",fill:"url(#"+gid+")"}));
+    }
+    svg.appendChild(el("path",{d,fill:"none",stroke:s.color,"stroke-width":2.2,"stroke-linecap":"round","stroke-linejoin":"round"}));
+  });
+
+  // interação
+  const cross = el("line",{x1:0,x2:0,y1:padT,y2:H-padB,stroke:"#A855F7","stroke-width":1,opacity:0});
+  svg.appendChild(cross);
+  const dots = series.map(s=>{ const c=el("circle",{r:4.5,fill:"#0B0912",stroke:s.color,"stroke-width":2.2,opacity:0}); svg.appendChild(c); return c; });
+  const hit = el("rect",{x:padL,y:0,width:W-padL-padR,height:H,fill:"transparent"});
+  svg.appendChild(hit);
+  const tip = document.createElement("div"); tip.className="chart-tip"; box.appendChild(tip);
+
+  function move(ev){
+    const r = svg.getBoundingClientRect();
+    const cx = ((ev.touches?ev.touches[0].clientX:ev.clientX) - r.left)/r.width*W;
+    let i = Math.round((cx-padL)/((W-padL-padR)/Math.max(1,labels.length-1)));
+    i = Math.max(0,Math.min(labels.length-1,i));
+    cross.setAttribute("x1",X(i)); cross.setAttribute("x2",X(i)); cross.setAttribute("opacity",".45");
+    dots.forEach((c,si)=>{ c.setAttribute("cx",X(i)); c.setAttribute("cy",Y(series[si].data[i])); c.setAttribute("opacity",1); });
+    tip.innerHTML = "<b>"+series.map(s=> nf(s.data[i],decimals)+unit).join(" · ")+"</b><small>"+labels[i]+"</small>";
+    tip.style.left = (X(i)/W*r.width)+"px";
+    tip.style.top  = (Y(series[0].data[i])/H*r.height)+"px";
+    tip.style.opacity = 1;
+  }
+  function leave(){ cross.setAttribute("opacity",0); dots.forEach(c=>c.setAttribute("opacity",0)); tip.style.opacity=0; }
+  hit.addEventListener("mousemove",move); hit.addEventListener("mouseleave",leave);
+  hit.addEventListener("touchstart",move,{passive:true}); hit.addEventListener("touchmove",move,{passive:true}); hit.addEventListener("touchend",leave);
+
+  box.appendChild(svg);
+}
+
+function barChart(box,{labels,a,b,height=260}){
+  box.innerHTML="";
+  const W=1000,H=height,padL=54,padR=14,padT=18,padB=30;
+  const svg=el("svg",{viewBox:"0 0 "+W+" "+H});
+  const hi=Math.max(...a)*1.2;
+  const Y=v=> padT+(1-v/hi)*(H-padT-padB);
+  for(let i=0;i<=4;i++){
+    const v=hi*(1-i/4), y=Y(v);
+    svg.appendChild(el("line",{x1:padL,x2:W-padR,y1:y,y2:y,stroke:"#1B1430"}));
+    const t=el("text",{x:padL-10,y:y+4,"text-anchor":"end",fill:"#5D5773","font-size":11,"font-family":"IBM Plex Mono, monospace"});
+    t.textContent=ni(v); svg.appendChild(t);
+  }
+  const bw=(W-padL-padR)/labels.length;
+  labels.forEach((l,i)=>{
+    const x=padL+i*bw+bw*0.22, w=bw*0.56;
+    svg.appendChild(el("rect",{x,y:Y(a[i]),width:w,height:Math.max(1,(H-padB)-Y(a[i])),rx:3,fill:"#A855F7",opacity:".85"}));
+    const rh=Math.max(1,((H-padB)-Y(b[i]))*1);
+    svg.appendChild(el("rect",{x,y:(H-padB)-rh,width:w,height:rh,rx:3,fill:"#FF4D6D"}));
+    if(i%Math.ceil(labels.length/7)===0||i===labels.length-1){
+      const t=el("text",{x:x+w/2,y:H-9,"text-anchor":"middle",fill:"#5D5773","font-size":11,"font-family":"IBM Plex Mono, monospace"});
+      t.textContent=l; svg.appendChild(t);
+    }
+  });
+  box.appendChild(svg);
+}
+
+function sparkline(svg,data,color){
+  svg.innerHTML="";
+  const W=200,H=34,lo=Math.min(...data),hi=Math.max(...data)||1;
+  const X=i=>i*W/(data.length-1), Y=v=>H-2-((v-lo)/((hi-lo)||1))*(H-6);
+  let d="M"+X(0)+" "+Y(data[0]);
+  for(let i=1;i<data.length;i++){
+    const mx=(X(i-1)+X(i))/2;
+    d+=" C"+mx+" "+Y(data[i-1])+" "+mx+" "+Y(data[i])+" "+X(i)+" "+Y(data[i]);
+  }
+  const gid="sp"+Math.random().toString(36).slice(2,8);
+  const defs=el("defs"),g=el("linearGradient",{id:gid,x1:0,y1:0,x2:0,y2:1});
+  g.appendChild(el("stop",{offset:"0","stop-color":color,"stop-opacity":".35"}));
+  g.appendChild(el("stop",{offset:"1","stop-color":color,"stop-opacity":"0"}));
+  defs.appendChild(g); svg.appendChild(defs);
+  svg.appendChild(el("path",{d:d+" L"+W+" "+H+" L0 "+H+" Z",fill:"url(#"+gid+")"}));
+  svg.appendChild(el("path",{d,fill:"none",stroke:color,"stroke-width":1.8,"stroke-linecap":"round"}));
+}
+
+/* ============================ SÉRIES HISTÓRICAS ============================ */
+/* Substitua por um endpoint de histórico quando houver armazenamento real. */
+function seed(str){ let h=2166136261; for(const c of str) h=Math.imul(h^c.charCodeAt(0),16777619); return ()=> (h=Math.imul(h^(h>>>15),2246822507),((h>>>0)%1000)/1000); }
+
+const HIST = {};
+function buildSeries(range){
+  if(HIST[range]) return HIST[range];
+  const cfg = {
+    "24h":{n:24, label:i=>pad((new Date(Date.now()-(23-i)*3600e3)).getHours())+"h"},
+    "7d" :{n:28, label:i=>{const d=new Date(Date.now()-(27-i)*6*3600e3); return d.getDate()+"/"+pad(d.getMonth()+1);}},
+    "30d":{n:30, label:i=>{const d=new Date(Date.now()-(29-i)*86400e3); return d.getDate()+"/"+pad(d.getMonth()+1);}},
+    "1a" :{n:12, label:i=>MESES[(new Date(Date.now()-(11-i)*30*86400e3)).getMonth()]}
+  }[range];
+  const r = seed("mrroot"+range);
+  const labels=[],hash=[],temp=[],watt=[],acc=[],rej=[];
+  let h=1.16,t=60,w=18.3;
+  for(let i=0;i<cfg.n;i++){
+    h = Math.min(1.34,Math.max(1.00, h + (r()-.5)*.09));
+    t = Math.min(71,Math.max(55, t + (r()-.5)*2.6));
+    w = Math.min(21.5,Math.max(16.5, w + (r()-.5)*.8));
+    if(range==="1a" && i<2) h *= .82;                 // ramp-up inicial
+    labels.push(cfg.label(i));
+    hash.push(+h.toFixed(3)); temp.push(+t.toFixed(1)); watt.push(+w.toFixed(1));
+    const base = range==="24h"?760 : range==="7d"?1900 : range==="30d"?7400 : 220000;
+    acc.push(Math.round(base*(.82+r()*.36)));
+    rej.push(Math.round(base*0.0008*(r()*3+.4)));
+  }
+  return HIST[range] = {labels,hash,temp,watt,acc,rej};
+}
+
+let rangeDash="24h", rangeCharts="24h";
+function drawDashChart(){
+  const s = buildSeries(rangeDash);
+  const avg = s.hash.reduce((a,b)=>a+b,0)/s.hash.length;
+  lineChart($("#boxDashHash"),{
+    series:[{data:s.hash,color:"#C77DFF"}],
+    labels:s.labels, unit:" TH/s", refLine:+avg.toFixed(3), height:280, decimals:2
+  });
+}
+function drawCharts(){
+  const s = buildSeries(rangeCharts);
+  lineChart($("#boxHash"),{series:[{data:s.hash,color:"#C77DFF"}],labels:s.labels,unit:" TH/s",height:280});
+  lineChart($("#boxTemp"),{series:[{data:s.temp,color:"#FFB020"}],labels:s.labels,unit:" °C",height:240,refLine:MRROOT.limits.tempMax,decimals:1});
+  lineChart($("#boxWatt"),{series:[{data:s.watt,color:"#5BE8FF"}],labels:s.labels,unit:" W",height:240,decimals:1});
+  barChart($("#boxShares"),{labels:s.labels,a:s.acc,b:s.rej,height:240});
+
+  const avg=arr=>arr.reduce((a,b)=>a+b,0)/arr.length;
+  const hours = rangeCharts==="24h"?24 : rangeCharts==="7d"?168 : rangeCharts==="30d"?720 : 8760;
+  $("#statHash").textContent = "média "+nf(avg(s.hash))+" TH/s";
+  $("#statTemp").textContent = "média "+nf(avg(s.temp),1)+" °C";
+  $("#statWatt").textContent = "média "+nf(avg(s.watt),1)+" W";
+  $("#sumHash").textContent    = nf(avg(s.hash))+" TH/s";
+  $("#sumHashMax").textContent = nf(Math.max(...s.hash))+" TH/s";
+  $("#sumTemp").textContent    = nf(avg(s.temp),1)+" °C";
+  $("#sumTempMax").textContent = nf(Math.max(...s.temp),1)+" °C";
+  $("#sumWatt").textContent    = nf(avg(s.watt),1)+" W";
+  $("#sumKwh").textContent     = nf(avg(s.watt)*hours/1000,1)+" kWh";
+  $("#sumUp").textContent      = "99,6 %";
+}
+function drawMinerTemp(){
+  const r=seed("minertemp"); const labels=[],data=[]; let t=MRROOT.state.temp;
+  for(let i=0;i<20;i++){ t=Math.min(72,Math.max(55,t+(r()-.5)*1.8));
+    labels.push((i*3)+"m"); data.push(+t.toFixed(1)); }
+  labels.reverse();
+  lineChart($("#boxMinerTemp"),{series:[{data,color:"#FFB020"}],labels,unit:" °C",height:200,refLine:MRROOT.limits.tempMax,decimals:1});
+}
+function drawWallet(){
+  const s=buildSeries("30d"); const r=seed("wallet");
+  let b=0.0302; const data=s.labels.map(()=> +(b+=0.00028+r()*0.00022).toFixed(6));
+  lineChart($("#boxWallet"),{series:[{data,color:"#A855F7"}],labels:s.labels,unit:" BTC",height:220,decimals:4});
+}
+
+$$('.seg[data-seg] button').forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const seg = btn.closest(".seg");
+    $$("button",seg).forEach(b=> b.setAttribute("aria-pressed", String(b===btn)));
+    if(seg.dataset.seg==="dash"){ rangeDash=btn.dataset.range; drawDashChart(); }
+    if(seg.dataset.seg==="charts"){ rangeCharts=btn.dataset.range; drawCharts(); }
+    if(seg.dataset.seg==="logs"){ Logs.filter=btn.dataset.level; Logs.render(); }
+  });
+});
+
+/* ============================ LOGS ============================ */
+const Logs = {
+  items:[], filter:"all", max:240,
+  push(level,src,msg,when){
+    this.items.unshift({level,src,msg,t:when||new Date()});
+    if(this.items.length>this.max) this.items.pop();
+    this.render();
+  },
+  row(it){
+    const d=it.t;
+    return '<div class="log-row" data-level="'+it.level+'">'+
+      '<time>'+pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+'</time>'+
+      '<span class="src">'+it.src+'</span>'+
+      '<span class="msg">'+it.msg+'</span></div>';
+  },
+  render(){
+    const list = this.filter==="all" ? this.items : this.items.filter(i=>i.level===this.filter);
+    const full=$("#fullLog"), mini=$("#miniLog");
+    if(full) full.innerHTML = list.length? list.map(this.row).join("") :
+      '<div class="log-row"><time>--:--</time><span class="src">sistema</span><span class="msg">Nenhum evento neste filtro. Escolha “Tudo” para ver o fluxo completo.</span></div>';
+    if(mini) mini.innerHTML = this.items.slice(0,12).map(this.row).join("");
+    const c=$("#logCount"); if(c) c.textContent = this.items.length;
+    const m=$("#logMeta"); if(m) m.textContent = list.length+" eventos · filtro "+this.filter;
+  }
+};
+/* Histórico inicial de inicialização */
+(function bootLogs(){
+  const t0=Date.now()-1000*60*7;
+  const boot=[
+    ["ok","sistema","Configuração carregada de /etc/mrroot/config.json"],
+    ["ok","wifi","Wi-Fi conectado à rede MR-NET · IP 192.168.0.42 · −48 dBm"],
+    ["ok","miner","Minerador iniciado · MR-ROOT S1 Mini · firmware 2.4.1"],
+    ["ok","miner","Frequência ajustada para 625 MHz · core 1160 mV"],
+    ["ok","pool","Pool conectado · stratum+tcp://pool.mr-root.io:3333"],
+    ["ok","pool","Worker autorizado · mrroot.node01 · dificuldade 512"],
+    ["ok","sensor","Temperatura atualizada · 58,4 °C · fan em 4720 RPM"],
+    ["ok","pool","Share aceita · dificuldade 512"],
+    ["warn","sensor","Temperatura acima de 68 °C · ventoinha elevada para 5100 RPM"],
+    ["ok","sensor","Temperatura normalizada · 61,5 °C"],
+    ["ok","pool","Share aceita · melhor resultado da sessão: 41,7 M"]
+  ];
+  boot.forEach((b,i)=> Logs.items.push({level:b[0],src:b[1],msg:b[2],t:new Date(t0+i*38000)}));
+  Logs.items.reverse();
+  Logs.render();
+})();
+$("#btnClearLogs").addEventListener("click",()=>{
+  Logs.items=[]; Logs.push("ok","sistema","Histórico de eventos limpo pelo operador.");
+});
+
+/* Eventos periódicos simulados */
+setInterval(()=>{
+  const s=MRROOT.state, r=Math.random();
+  if(r<.42) Logs.push("ok","pool","Share aceita · dificuldade "+s.difficulty);
+  else if(r<.62) Logs.push("ok","sensor","Temperatura atualizada · "+nf(s.temp,1)+" °C · fan "+ni(s.fan)+" RPM");
+  else if(r<.74) Logs.push("ok","miner","Hashrate "+nf(s.hashrate)+" TH/s · consumo "+nf(s.watt,1)+" W");
+  else if(r<.80) Logs.push("ok","wifi","Wi-Fi conectado · "+s.ssid+" · "+s.rssi+" dBm");
+  else if(r<.86) Logs.push("warn","pool","Share rejeitada · stale share");
+  if(s.temp > MRROOT.limits.tempMax) Logs.push("warn","sensor","Temperatura acima do limite configurado ("+MRROOT.limits.tempMax+" °C)");
+}, 7000);
+
+/* ============================ RENDER DA TELEMETRIA ============================ */
+const sparks={hash:[],watt:[],rej:[]};
+function render(s){
+  const eff = s.watt/s.hashrate;
+  const accPct = s.accepted/(s.accepted+s.rejected)*100;
+
+  // Dashboard
+  $("#kHash").innerHTML = nf(s.hashrate)+'<u>TH/s</u>';
+  $("#kTemp").innerHTML = nf(s.temp,1)+'<u>°C</u>';
+  $("#kWatt").innerHTML = nf(s.watt,1)+'<u>W</u>';
+  $("#kUptime").textContent = uptimeStr(s.uptimeSec);
+  $("#kAcc").textContent = ni(s.accepted);
+  $("#kRej").textContent = ni(s.rejected);
+  $("#kEff").textContent = nf(eff,1);
+  $("#kAccRate").textContent = nf(accPct,2);
+  $("#kAccBar").style.width = accPct.toFixed(2)+"%";
+  $("#kTempBar").style.width = Math.min(100,(s.temp/95)*100).toFixed(1)+"%";
+  $("#kTempLimit").textContent = MRROOT.limits.tempMax;
+  $("#kTempState").textContent = s.temp>MRROOT.limits.tempMax ? "acima do limite" : s.temp>MRROOT.limits.tempMax-8 ? "próxima do limite" : "dentro da faixa";
+  $("#kFreqMini").textContent = ni(s.freq);
+  $("#kFanMini").textContent = ni(s.fan);
+  $("#kSince").textContent = new Date(Date.now()-s.uptimeSec*1000).toLocaleDateString("pt-BR");
+  $("#kRejAgo").textContent = "2 h 14 min";
+  $("#kState").textContent = s.online ? "Em operação" : "Parado";
+  $("#kState").style.color = s.online ? "var(--violet-2)" : "var(--red)";
+  const trend = s.hashrate>=MRROOT.limits.hashMin ? "▲ estável" : "▼ abaixo do mínimo";
+  $("#kHashTrend").textContent = trend;
+  $("#kHashTrend").className = "trend"+(s.hashrate>=MRROOT.limits.hashMin?"":" down");
+
+  sparks.hash.push(s.hashrate); sparks.watt.push(s.watt); sparks.rej.push(s.rejected);
+  Object.values(sparks).forEach(a=>{ if(a.length>40) a.shift(); });
+  if(sparks.hash.length>2){
+    sparkline($("#sparkHash"),sparks.hash,"#C77DFF");
+    sparkline($("#sparkWatt"),sparks.watt,"#5BE8FF");
+    sparkline($("#sparkRej"),sparks.rej,"#FF4D6D");
+  }
+
+  // Resumo do minerador no dashboard
+  $("#mHash").innerHTML = nf(s.hashrate)+'<em>TH/s</em>';
+  $("#mTemp").innerHTML = nf(s.temp,1)+'<em>°C</em>';
+  $("#mFreq").innerHTML = ni(s.freq)+'<em>MHz</em>';
+  $("#mFan").innerHTML  = ni(s.fan)+'<em>RPM</em>';
+
+  // Página do minerador
+  $("#hwHash").innerHTML = nf(s.hashrate)+'<em>TH/s</em>';
+  $("#hwTemp").innerHTML = nf(s.temp,1)+'<em>°C</em>';
+  $("#hwFreq").innerHTML = ni(s.freq)+'<em>MHz</em>';
+  $("#hwFan").innerHTML  = ni(s.fan)+'<em>RPM</em>';
+  $("#hwWatt").innerHTML = nf(s.watt,1)+'<em>W</em>';
+  $("#hwVolt").innerHTML = ni(s.volt)+'<em>mV</em>';
+  $("#hwUptime").textContent = uptimeStr(s.uptimeSec);
+  $("#hwEff").innerHTML = nf(eff,1)+'<em>J/TH</em>';
+  $("#hwStatus").textContent = s.online ? "Online · minerando" : "Offline";
+  $("#hwPool").textContent = s.pool;
+  $("#hwWorker").textContent = s.worker;
+  $("#hwWifi").textContent = s.ssid+" · "+s.rssi+" dBm";
+  $("#hwUpdated").textContent = "atualizado "+pad(new Date().getHours())+":"+pad(new Date().getMinutes())+":"+pad(new Date().getSeconds());
+
+  // Pool
+  $("#pState").textContent = s.online ? "Conectado" : "Sem conexão";
+  $("#pState").style.color = s.online ? "var(--violet-2)" : "var(--red)";
+  $("#pPing").textContent = s.ping;
+  $("#pSince").textContent = "estável há "+uptimeStr(s.uptimeSec);
+  $("#pAcc").textContent = ni(s.accepted);
+  $("#pRej").textContent = ni(s.rejected);
+  $("#pAccPct").textContent = nf(accPct,2);
+  $("#pAccBar").style.width = accPct.toFixed(2)+"%";
+  $("#pDiff").textContent = ni(s.difficulty);
+  $("#pDiff2").textContent = ni(s.difficulty);
+  $("#pBest").textContent = "41,7 M";
+  $("#pBlock").textContent = "#"+ni(918342);
+
+  // Topo
+  $("#statusTxt").textContent = s.online ? "Minerador Online" : "Minerador Offline";
+  $("#statusDot").classList.toggle("off",!s.online);
+  $("#chipStatus").classList.toggle("online",s.online);
+  $("#wifiTxt").textContent = s.ssid+" · "+s.rssi+" dBm";
+
+  // Carteira
+  const w=s.wallet;
+  $("#wBal").innerHTML   = nf(w.balance,8)+'<u>BTC</u>';
+  $("#wAvail").innerHTML = nf(w.available,8)+'<u>BTC</u>';
+  $("#wPend").innerHTML  = nf(w.pending,8)+'<u>BTC</u>';
+  $("#wTx").textContent  = ni(w.txCount);
+  $("#wFiat").textContent = "R$ "+nf(w.balance*w.price,2);
+  $("#wPrice").textContent = "R$ "+ni(w.price);
+  $("#wAddr").textContent = w.address;
+  $("#wUpdated").textContent = new Date().toLocaleString("pt-BR");
+}
+
+/* Transações públicas de exemplo */
+(function txTable(){
+  const rows=[
+    ["17/09/2026 04:12","recebido","f39a…c710",  "128","+0,00041280"],
+    ["16/09/2026 04:08","recebido","91be…44d2",  "272","+0,00039845"],
+    ["15/09/2026 03:59","recebido","0ac7…8e31",  "419","+0,00042113"],
+    ["14/09/2026 04:02","recebido","bb20…1f9a",  "563","+0,00040390"],
+    ["13/09/2026 04:15","recebido","5d81…72c4",  "708","+0,00043027"],
+    ["12/09/2026 04:06","recebido","e447…9b05",  "851","+0,00038964"]
+  ];
+  $("#wTxBody").innerHTML = rows.map(r=>
+    '<tr><td class="num" style="text-align:left">'+r[0]+'</td>'+
+    '<td><span class="pill ok">'+r[1]+'</span></td>'+
+    '<td class="num" style="text-align:left">'+r[2]+'</td>'+
+    '<td class="num" style="text-align:left">'+r[3]+'</td>'+
+    '<td class="num" style="color:var(--violet-2)">'+r[4]+'</td></tr>').join("");
+})();
+
+/* ============================ CONFIGURAÇÕES ============================ */
+(function initSettings(){
+  const saved = store("config");
+  if(saved){
+    $("#cfgApi").value = saved.api ?? "";
+    $("#cfgPoll").value = saved.poll ?? 5000;
+    $("#cfgWallet").value = saved.wallet ?? MRROOT.state.wallet.address;
+    $("#cfgTemp").value = saved.tempMax ?? 75;
+    $("#cfgHash").value = saved.hashMin ?? 0.9;
+    apply(saved);
+  }
+  function apply(c){
+    MRROOT.api.pollMs = Number(c.poll)||5000;
+    MRROOT.limits.tempMax = Number(c.tempMax)||75;
+    MRROOT.limits.hashMin = Number(c.hashMin)||0.9;
+    if(c.wallet) MRROOT.state.wallet.address = c.wallet;
+    $("#pollLabel").textContent = MRROOT.api.pollMs/1000;
+  }
+  $("#btnSave").addEventListener("click",()=>{
+    const c={api:$("#cfgApi").value.trim(),poll:$("#cfgPoll").value,wallet:$("#cfgWallet").value.trim(),
+             tempMax:$("#cfgTemp").value,hashMin:$("#cfgHash").value};
+    store("config",c); apply(c); restartPolling();
+    $("#cfgMsg").textContent = "Configurações salvas neste navegador às "+new Date().toLocaleTimeString("pt-BR")+".";
+    Logs.push("ok","sistema","Configuração salva · intervalo "+(MRROOT.api.pollMs/1000)+"s · limite "+MRROOT.limits.tempMax+" °C");
+    render(MRROOT.state);
+  });
+  $("#btnTest").addEventListener("click",async()=>{
+    const url=$("#cfgApi").value.trim();
+    $("#cfgMsg").textContent = "Testando "+(url||"(endereço vazio)")+"…";
+    if(!url){ $("#cfgMsg").textContent="Informe o endereço da API do minerador para sair do modo demonstração."; return; }
+    try{
+      const r=await fetch(url,{cache:"no-store"}); if(!r.ok) throw new Error("HTTP "+r.status);
+      await r.json();
+      $("#cfgMsg").textContent="Conexão bem-sucedida. O painel passou a ler o minerador real.";
+      MRROOT.api.endpoint=url; MRROOT.api.live=true;
+      $("#railMode").textContent="ao vivo"; $("#aboutMode").textContent="dados reais";
+      Logs.push("ok","api","Conexão estabelecida com "+url);
+    }catch(e){
+      $("#cfgMsg").textContent="Não foi possível alcançar o minerador ("+e.message+"). O painel segue em modo demonstração.";
+      Logs.push("err","api","Teste de conexão falhou: "+e.message);
+    }
+  });
+  $$(".toggle").forEach(t=> t.addEventListener("click",()=>{
+    t.setAttribute("aria-checked", t.getAttribute("aria-checked")==="true"?"false":"true");
+  }));
+})();
+
+$("#btnCopyAddr").addEventListener("click",async()=>{
+  try{ await navigator.clipboard.writeText($("#wAddr").textContent);
+       $("#btnCopyAddr").lastChild.textContent="Copiado";
+       setTimeout(()=> $("#btnCopyAddr").lastChild.textContent="Copiar",1800);
+  }catch(e){ Logs.push("warn","sistema","O navegador bloqueou a cópia. Selecione o endereço manualmente."); }
+});
+$("#btnRestart").addEventListener("click",()=>{
+  Logs.push("warn","miner","Reinicialização solicitada pelo operador.");
+  MRROOT.state.online=false; render(MRROOT.state);
+  setTimeout(()=>{
+    MRROOT.state.online=true; MRROOT.state.uptimeSec=0;
+    Logs.push("ok","miner","Minerador iniciado · MR-ROOT S1 Mini");
+    Logs.push("ok","pool","Pool conectado · stratum+tcp://pool.mr-root.io:3333");
+    render(MRROOT.state);
+  },2600);
+});
+$("#btnRefresh").addEventListener("click",async()=>{ render(await MRROOT.fetchTelemetry()); });
+
+/* ============================ LOOP ============================ */
+let timer=null;
+async function tick(){ render(await MRROOT.fetchTelemetry()); }
+function restartPolling(){ clearInterval(timer); timer=setInterval(tick,MRROOT.api.pollMs); }
+
+render(MRROOT.state);
+drawDashChart();
+restartPolling();
+go(location.hash.replace("#","") || "dashboard");
+window.addEventListener("resize",()=>{
+  clearTimeout(window.__rz);
+  window.__rz=setTimeout(()=>{ drawDashChart(); if($("#page-graficos").classList.contains("is-active")) drawCharts(); },220);
+});
+})();
+</script>
+</body>
+</html>
